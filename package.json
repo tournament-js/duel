@@ -1,0 +1,26 @@
+{
+  "name": "duel",
+  "description": "Duel elimination tournament",
+  "author": "Eirik Albrigtsen <analsandblaster@gmail.com>",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "clux/duel"
+  },
+  "keywords": ["duel", "elimination", "tournament"],
+  "main": "duel.js",
+  "scripts": {
+    "test": "tap test/*.js"
+  },
+  "dependencies": {
+    "interlude": "~1.0.2",
+    "tournament": "~0.15.0"
+  },
+  "devDependencies": {
+    "tap": "~0.4.4"
+  },
+  "bugs": {
+    "url": "http://github.com/clux/duel/issues"
+  },
+  "license": "MIT"
+}
