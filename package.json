@@ -2,12 +2,16 @@
   "name": "duel",
   "description": "Duel elimination tournament",
   "author": "Eirik Albrigtsen <analsandblaster@gmail.com>",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "clux/duel"
   },
-  "keywords": ["duel", "elimination", "tournament"],
+  "keywords": [
+    "duel",
+    "elimination",
+    "tournament"
+  ],
   "main": "duel.js",
   "scripts": {
     "test": "tap test/*.js"
