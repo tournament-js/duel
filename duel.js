@@ -313,63 +313,56 @@ Duel.prototype.unscorable = function (id, score, allowPast) {
   return null;
 };
 
+// helper for score - takes a generic progress function (down or right)
+// and sends the advancer to whatever this function returns
+var playerInsert = function (progress, adv) {
+  if (progress) {
+    var id = progress[0]
+      , pos = progress[1]
+      , insertM = this.findMatch(id);
+
+    if (!insertM) {
+      var rep = idString(id);
+      throw new Error("tournament corrupt: " + rep + " not found!");
+    }
+
+    insertM.p[pos] = adv;
+    if (insertM.p[(pos + 1) % 2] === WO) {
+      insertM.m = (pos) ? [0, 1] : [1, 0]; // set WO map scores
+      return insertM.id; // this id was won by adv on WO, inform
+    }
+  }
+};
+
 // updates matches by updating the given match, and propagate the winners/losers
 Duel.prototype.score = function (id, scrs) {
-  // 0. error handling - if this fails client didnt guard so we log
-  var invReason = this.unscorable(id, scrs, true);
-  if (invReason !== null) {
-    console.error("failed scoring Duel match %s with %j", idString(id), scrs);
-    console.error("reason:", invReason);
-    return false;
-  }
-  //console.log("scoring Duel %s with %j", idString(id), scrs);
+  if (Base.prototype.score.call(this, id, scrs)) {
+    // helper to insert player adv into [id, pos] from progression functions
+    var inserter = playerInsert.bind(this);
 
-  // 1. score given match
-  var m = this.findMatch(id);
-  m.m = scrs; // only map scores are relevant for progression
+    // 1. calculate winner and loser for progression
+    var m = this.findMatch(id);
+    var w = (scrs[0] > scrs[1]) ? m.p[0] : m.p[1]
+      , l = (scrs[0] > scrs[1]) ? m.p[1] : m.p[0];
+    // an underdog win may force a double match where brackets join
+    // currently, this only happens in double elimination in GF1 and isLong
+    var underdogWon = (w === m.p[1]);
 
-  // helper to insert player adv into [id, pos] from progression functions
-  var finder = this.findMatch.bind(this);
-  var playerInsert = function (progress, adv) {
-    if (progress) {
-      var id = progress[0]
-        , pos = progress[1]
-        , insertM = finder(id);
+    // 2. move winner right
+    // NB: non-WO match `id` cannot `right` into a WOd match => discard res
+    inserter(this.right(id, underdogWon), w);
 
-      if (!insertM) {
-        var rep = idString(id);
-        throw new Error("tournament corrupt: " + rep + " not found!");
-      }
+    // 3. move loser down if applicable
+    var dres = inserter(this.down(id, underdogWon), l);
 
-      insertM.p[pos] = adv;
-      if (insertM.p[(pos + 1) % 2] === WO) {
-        insertM.m = (pos) ? [0, 1] : [1, 0]; // set WO map scores
-        return insertM.id; // this id was won by adv on WO, inform
-      }
+    // 4. check if loser must be forwarded from existing WO in LBR1/LBR2
+    // NB: underdogWon is never relevant as LBR2 is always before GF1 when p >= 2
+    if (dres) {
+      inserter(this.right(dres, false), l);
     }
-  };
-
-  // calculate winner and loser for progression
-  var w = (scrs[0] > scrs[1]) ? m.p[0] : m.p[1]
-    , l = (scrs[0] > scrs[1]) ? m.p[1] : m.p[0];
-
-  // an underdog win may force a double match where brackets join
-  // currently, this only happens in double elimination in GF1 and isLong
-  var underdogWon = (w === m.p[1]);
-
-  // 2. move winner right
-  // NB: non-WO match `id` cannot `right` into a WOd match => discard res
-  playerInsert(this.right(id, underdogWon), w);
-
-  // 3. move loser down if applicable
-  var dres = playerInsert(this.down(id, underdogWon), l);
-
-  // 4. check if loser must be forwarded from existing WO in LBR1/LBR2
-  // NB: underdogWon is never relevant as LBR2 is always before GF1 when p >= 2
-  if (dres) {
-    playerInsert(this.right(dres, false), l);
+    return true;
   }
-  return true;
+  return false;
 };
 
 
