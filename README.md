@@ -120,3 +120,6 @@ This makes more sense, because we can sensibly say that both players are in the 
 
 ### Bracket movement
 In double elimination, the losers bracket _moves_ upwards to meet the winner bracket close to the final. This is a design decision that unfortunately has to be made, because it affects the match ids `score` will drop the next player at. An issue is open for this, but it is currently not prioritized.
+
+## License
+MIT-Licensed. See LICENSE file for details.
