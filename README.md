@@ -1,4 +1,6 @@
-# Duel tournaments
+# Duel elimination tournaments
+[![Build Status](https://secure.travis-ci.org/clux/duel.png)](http://travis-ci.org/clux/duel)
+[![Dependency Status](https://david-dm.org/clux/duel.png)](https://david-dm.org/clux/duel)
 
     Stability: 3 - Stable
 
