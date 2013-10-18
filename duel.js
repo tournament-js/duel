@@ -112,6 +112,7 @@ var makeFirstRounds = function (size, p, last) {
 };
 
 var invalid = function (np, last, opts) {
+  opts = opts || {};
   if (!Number.isFinite(np) || Math.ceil(np) !== np || np < 4 || np > 1024) {
     return "duel tournament size must be an integer n, s.t. 4 <= n <= 1024";
   }
@@ -167,31 +168,85 @@ var elimination = function (size, p, last, isLong) {
   return matches.sort(Base.compareMatches); // sort so they can be scored in order
 };
 
-// interface
-function Duel(numPlayers, numBrackets, opts) {
-  if (!(this instanceof Duel)) {
-    return new Duel(numPlayers, numBrackets, opts);
-  }
-  this.version = 1;
-  this.p = Math.ceil(Math.log(numPlayers) / Math.log(2));
-  this.last = numBrackets;
+// helper for score - takes a generic progress function (down or right)
+// and sends the advancer to whatever this function returns
+var playerInsert = function (progress, adv) {
+  if (progress) {
+    var id = progress[0]
+      , pos = progress[1]
+      , insertM = this.findMatch(id);
 
-  // isLong is the default final behaviour, which can be turned off via opts.short
-  // isLong for WB === hasBF, isLong for LB === hasGf2 (in the sense that they exist)
-  this.isLong = true;
-  this.limit = 0;
-  if (opts) {
-    this.isLong = !opts.short;
-    this.limit = opts.limit | 0; // not in use atm
+    if (!insertM) {
+      var rep = idString(id);
+      throw new Error("tournament corrupt: " + rep + " not found!");
+    }
+
+    insertM.p[pos] = adv;
+    if (insertM.p[(pos + 1) % 2] === WO) {
+      insertM.m = (pos) ? [0, 1] : [1, 0]; // set WO map scores
+      return insertM.id; // this id was won by adv on WO, inform
+    }
   }
-  this.numPlayers = numPlayers;
-  Base.call(this, Duel, elimination(numPlayers, this.p, this.last, this.isLong));
-}
-Duel.prototype = Object.create(Base.prototype);
+};
+
+var Duel = Base.sub('Duel', ['numPlayers', 'last', 'opts'], {
+  init: function (initParent) {
+    this.version = 1;
+    this.p = Math.ceil(Math.log(this.numPlayers) / Math.log(2));
+
+    // isLong is the default final behaviour, which can be turned off via opts.short
+    // isLong for WB => hasBF, isLong for LB => hasGf2
+    this.isLong = true;
+    this.limit = 0;
+    if (this.opts) {
+      this.isLong = !this.opts.short;
+      this.limit = this.opts.limit | 0; // not in use atm
+    }
+    delete this.opts;
+    var ms = elimination(this.numPlayers, this.p, this.last, this.isLong);
+    initParent(ms);
+  },
+
+  score: function (id, score) {
+    // helper to insert player adv into [id, pos] from progression fns
+    var inserter = playerInsert.bind(this);
+
+    // 1. calculate winner and loser for progression
+    var m = this.findMatch(id);
+    var w = (score[0] > score[1]) ? m.p[0] : m.p[1]
+      , l = (score[0] > score[1]) ? m.p[1] : m.p[0];
+    // an underdog win may force a double match where brackets join
+    // currently, this only happens in double elimination in GF1 and isLong
+    var underdogWon = (w === m.p[1]);
+
+    // 2. move winner right
+    // NB: non-WO match `id` cannot `right` into a WOd match => discard res
+    inserter(this.right(id, underdogWon), w);
+
+    // 3. move loser down if applicable
+    var dres = inserter(this.down(id, underdogWon), l);
+
+    // 4. check if loser must be forwarded from existing WO in LBR1/LBR2
+    // NB: underdogWon is never relevant as LBR2 is always before GF1 when p >= 2
+    if (dres) {
+      inserter(this.right(dres, false), l);
+    }
+  },
+
+  unscorable: function (id, score) {
+    var m = this.findMatch(id);
+    if (m.p[0] === WO || m.p[1] === WO) {
+      return "cannot override score in walkover'd match";
+    }
+    if (score[0] === score[1]) {
+      return "cannot draw a duel";
+    }
+    return null;
+  }
+});
 Duel.WB = WB;
 Duel.LB = LB;
 Duel.WO = WO;
-Duel.parse = Base.parse.bind(null, Duel);
 Duel.invalid = invalid;
 Duel.idString = idString;
 
@@ -298,74 +353,6 @@ Duel.prototype.down = function (id, underdogWon) {
   return [dId, pos];
 };
 
-Duel.prototype.unscorable = function (id, score, allowPast) {
-  var invReason = Base.prototype.unscorable.call(this, id, score, allowPast);
-  if (invReason !== null) {
-    return invReason;
-  }
-  var m = this.findMatch(id);
-  if (m.p[0] === WO || m.p[1] === WO) {
-    return "cannot override score in walkover'd match";
-  }
-  if (score[0] === score[1]) {
-    return "cannot draw a duel";
-  }
-  return null;
-};
-
-// helper for score - takes a generic progress function (down or right)
-// and sends the advancer to whatever this function returns
-var playerInsert = function (progress, adv) {
-  if (progress) {
-    var id = progress[0]
-      , pos = progress[1]
-      , insertM = this.findMatch(id);
-
-    if (!insertM) {
-      var rep = idString(id);
-      throw new Error("tournament corrupt: " + rep + " not found!");
-    }
-
-    insertM.p[pos] = adv;
-    if (insertM.p[(pos + 1) % 2] === WO) {
-      insertM.m = (pos) ? [0, 1] : [1, 0]; // set WO map scores
-      return insertM.id; // this id was won by adv on WO, inform
-    }
-  }
-};
-
-// updates matches by updating the given match, and propagate the winners/losers
-Duel.prototype.score = function (id, scrs) {
-  if (Base.prototype.score.call(this, id, scrs)) {
-    // helper to insert player adv into [id, pos] from progression functions
-    var inserter = playerInsert.bind(this);
-
-    // 1. calculate winner and loser for progression
-    var m = this.findMatch(id);
-    var w = (scrs[0] > scrs[1]) ? m.p[0] : m.p[1]
-      , l = (scrs[0] > scrs[1]) ? m.p[1] : m.p[0];
-    // an underdog win may force a double match where brackets join
-    // currently, this only happens in double elimination in GF1 and isLong
-    var underdogWon = (w === m.p[1]);
-
-    // 2. move winner right
-    // NB: non-WO match `id` cannot `right` into a WOd match => discard res
-    inserter(this.right(id, underdogWon), w);
-
-    // 3. move loser down if applicable
-    var dres = inserter(this.down(id, underdogWon), l);
-
-    // 4. check if loser must be forwarded from existing WO in LBR1/LBR2
-    // NB: underdogWon is never relevant as LBR2 is always before GF1 when p >= 2
-    if (dres) {
-      inserter(this.right(dres, false), l);
-    }
-    return true;
-  }
-  return false;
-};
-
-
 // results helpers
 var lbPos = function (p, maxr) {
   // model position as y = 2^(k+1) + c_k2^k + 1
@@ -394,16 +381,8 @@ Duel.prototype.results = function () {
   var last = this.last
    , p = this.p
    , isLong = this.isLong
-   , res = new Array(this.numPlayers);
-
-  for (var s = 0; s < this.numPlayers; s += 1) {
-    // TODO: do best scores somehow?
-    res[s] = {
-      seed : s + 1,
-      maps : 0,
-      wins : 0
-    };
-  }
+   // TODO: do best scores somehow?
+   , res = Base.prototype.results.call(this, { maps: 0 });
 
   for (var i = 0; i < this.matches.length; i += 1) {
     var g = this.matches[i]
