@@ -397,11 +397,9 @@ Duel.prototype.results = function () {
     for (var j = 0; j < g.p.length; j += 1) {
       var pX = g.p[j] - 1;
       if (pX >= 0) {
-        // position as if we got to maxr (i.e. this, or `down` to immediate loss pos)
-        // if we cant position using placement, we are in one of the 4 specials
-        // we want position 2 in the finals, but 4 in BF and longSemis (equivalent)
-        var specialPosition = 2 + Number(isBf || isLongSemi)*2;
-        res[pX].pos = canPosition ? placement(last, p, maxr) : specialPosition;
+        res[pX].pos = canPosition ?
+          placement(last, p, maxr): // estimate from minimally achieved last round
+          2 + Number(isBf || isLongSemi)*2; // finals are 2 or 4 initially
       }
     }
 
