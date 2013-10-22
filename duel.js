@@ -242,9 +242,16 @@ var Duel = Base.sub('Duel', ['numPlayers', 'last', 'opts'], {
     return null;
   }
 });
-Duel.WB = WB;
-Duel.LB = LB;
-Duel.WO = WO;
+
+// constructor consts
+var consts = {WB: WB, LB: LB, WO: WO};
+Object.keys(consts).forEach(function (key) {
+  Object.defineProperty(Duel, key, {
+    enumerable: true,
+    value: consts[key]
+  });
+});
+
 Duel.invalid = invalid;
 Duel.idString = idString;
 
