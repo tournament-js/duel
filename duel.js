@@ -207,24 +207,23 @@ var Duel = Base.sub('Duel', ['numPlayers', 'last', 'opts'], {
     initParent(ms);
   },
 
-  score: function (id, score) {
+  progress: function (m) {
     // helper to insert player adv into [id, pos] from progression fns
     var inserter = playerInsert.bind(this);
 
     // 1. calculate winner and loser for progression
-    var m = this.findMatch(id);
-    var w = (score[0] > score[1]) ? m.p[0] : m.p[1]
-      , l = (score[0] > score[1]) ? m.p[1] : m.p[0];
+    var w = (m.m[0] > m.m[1]) ? m.p[0] : m.p[1]
+      , l = (m.m[0] > m.m[1]) ? m.p[1] : m.p[0];
     // an underdog win may force a double match where brackets join
     // currently, this only happens in double elimination in GF1 and isLong
     var underdogWon = (w === m.p[1]);
 
     // 2. move winner right
     // NB: non-WO match `id` cannot `right` into a WOd match => discard res
-    inserter(this.right(id, underdogWon), w);
+    inserter(this.right(m.id, underdogWon), w);
 
     // 3. move loser down if applicable
-    var dres = inserter(this.down(id, underdogWon), l);
+    var dres = inserter(this.down(m.id, underdogWon), l);
 
     // 4. check if loser must be forwarded from existing WO in LBR1/LBR2
     // NB: underdogWon is never relevant as LBR2 is always before GF1 when p >= 2
@@ -233,8 +232,7 @@ var Duel = Base.sub('Duel', ['numPlayers', 'last', 'opts'], {
     }
   },
 
-  unscorable: function (id, score) {
-    var m = this.findMatch(id);
+  verify: function (m, score) {
     if (m.p[0] === WO || m.p[1] === WO) {
       return "cannot override score in walkover'd match";
     }
