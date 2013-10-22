@@ -240,6 +240,11 @@ var Duel = Base.sub('Duel', ['numPlayers', 'last', 'opts'], {
       return "cannot draw a duel";
     }
     return null;
+  },
+
+  early: function () {
+    var gf1 = this.matches[this.matches.length - 2];
+    return this.isLong && this.last === LB && gf1.m && gf1.m[0] > gf1.m[1];
   }
 });
 
@@ -257,25 +262,6 @@ Duel.idString = idString;
 
 // roundName module
 Duel.prototype.roundName = require('./duel_names')({LB: LB, WB: WB});
-
-Duel.prototype.isDone = function () {
-  if (!this.isLong) {
-    // in short mode, a couple of simplifications apply:
-    // the last match is always the final - and the final is always scorable last
-    var gf = this.matches[this.matches.length - 1];
-    return Array.isArray(gf.m);
-  }
-
-  // otherwise we have either a bronze final or a POTENTIAL double grand final
-  if (this.matches.every($.get('m'))) {
-    return true; // covers single elimination cases bronze final and long double
-  }
-
-  // but allDone misses a potential early exit from a short GF in double elimination
-  var gf1 = this.matches[this.matches.length - 2];
-  return (this.last === LB && Array.isArray(gf1.m) && gf1.m[0] > gf1.m[1]);
-};
-
 
 // progression helpers, winner in `id` goes right to returned id or tournament over
 Duel.prototype.right = function (id, underdogWon) {
