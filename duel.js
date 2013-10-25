@@ -113,7 +113,7 @@ var makeFirstRounds = function (size, p, last) {
 
 var invalid = function (np, last, opts) {
   opts = opts || {};
-  if (!Number.isFinite(np) || Math.ceil(np) !== np || np < 4 || np > 1024) {
+  if (!Base.isInteger(np) || np < 4 || np > 1024) {
     return "duel tournament size must be an integer n, s.t. 4 <= n <= 1024";
   }
   if ([WB, LB].indexOf(last) < 0) {
@@ -246,6 +246,7 @@ var Duel = Base.sub('Duel', ['numPlayers', 'last', 'opts'], {
     var gf1 = this.matches[this.matches.length - 2];
     return this.isLong && this.last === LB && gf1.m && gf1.m[0] > gf1.m[1];
   }
+  // TODO: move stats up here
 });
 
 // constructor consts
@@ -261,7 +262,7 @@ Duel.invalid = invalid;
 Duel.idString = idString;
 
 // roundName module
-Duel.prototype.roundName = require('./duel_names')({LB: LB, WB: WB});
+Duel.prototype.roundName = require('./duel_names')(consts);
 
 // progression helpers, winner in `id` goes right to returned id or tournament over
 Duel.prototype.right = function (id, underdogWon) {
@@ -368,38 +369,24 @@ var placement = function (last, p, maxr) {
   return (last === LB) ? lbPos(p, maxr) : wbPos(p, maxr);
 };
 
-Duel.prototype.results = function () {
-  var last = this.last
-   , p = this.p
-   , isLong = this.isLong
-   // TODO: do best scores somehow?
-   , res = Base.prototype.results.call(this, { maps: 0 });
+// main reduce function for results
+var updateBasedOnMatch = function (isLong, last, p, res, g) {
+  var isBf = isLong && last === WB && g.id.s === LB
+    , isWbGf = last === WB && g.id.s === WB && g.id.r === p
+    , isLbGfs = last === LB && g.id.s === LB && g.id.r >= 2*p - 1
+    , isLongSemi = isLong && last === WB && g.id.s === WB && g.id.r === p-1
+    , canPosition = !isBf && !isWbGf && !isLbGfs && !isLongSemi
+    , maxr = (last === LB && g.id.s === WB) ? this.down(g.id, false)[0].r : g.id.r;
 
-  for (var i = 0; i < this.matches.length; i += 1) {
-    var g = this.matches[i]
-      , isBf = (isLong && last === WB && g.id.s === LB)
-      , isWbGf = (last === WB && g.id.s === WB && g.id.r === p)
-      , isLbGfs = (last === LB && g.id.s === LB && g.id.r >= 2*p - 1)
-      , isLongSemi = (isLong && last === WB && g.id.s === WB && g.id.r === p-1)
-      , canPosition = !isBf && !isWbGf && !isLbGfs && !isLongSemi
-      , maxr = (last === LB && g.id.s === WB) ? this.down(g.id, false)[0].r : g.id.r;
+  // handle players that have reached the match
+  g.p.filter($.gt(0)).forEach(function (s) {
+    res[s-1].pos = canPosition ?
+      placement(last, p, maxr): // estimate from minimally achieved last round
+      2 + Number(isBf || isLongSemi)*2; // finals are 2 or 4 initially
+  });
 
-    // basic positioning handling of players that may merely have reached the match
-    for (var j = 0; j < g.p.length; j += 1) {
-      var pX = g.p[j] - 1;
-      if (pX >= 0) {
-        res[pX].pos = canPosition ?
-          placement(last, p, maxr): // estimate from minimally achieved last round
-          2 + Number(isBf || isLongSemi)*2; // finals are 2 or 4 initially
-      }
-    }
-
-    if (g.p[0] === WO || g.p[1] === WO || !g.m) {
-      // if WO => other player will be found later
-      // if unscored, can only keep on assuming worst outcome
-      continue;
-    }
-
+  // done if WO (player found in next) or unplayed
+  if (g.p.indexOf(WO) < 0 && g.m) {
     // when we have scores, we have a winner and a loser
     var p0 = g.p[0] - 1
       , p1 = g.p[1] - 1
@@ -408,8 +395,10 @@ Duel.prototype.results = function () {
 
     // inc wins
     res[w].wins += 1;
-    res[p0].maps += g.m[0];
-    res[p1].maps += g.m[1];
+    res[p0].for += g.m[0];
+    res[p1].for += g.m[1];
+    res[p0].against += g.m[1];
+    res[p1].against += g.m[0];
 
     // finals handling (if played) - overwrites earlier handling
     if (isBf) {
@@ -421,11 +410,23 @@ Duel.prototype.results = function () {
       res[w].pos = 1;
     }
     else if (isLbGfs) {
+      var isConclusive = g.id.r === 2*p || !isLong || p0 === w;
       res[l].pos = 2;
-      res[w].pos = (g.id.r === 2*p || !isLong || p0 === w) ? 1 : 2;
+      res[w].pos = isConclusive ? 1 : 2;
     }
   }
-  return res.sort(Base.compareRes);
+  return res;
+};
+
+// extra properties
+Duel.prototype.initResult = function () {
+  return { against: 0 };
+};
+Duel.prototype.stats = function (res) {
+  return this.matches.reduce(
+    updateBasedOnMatch.bind(this, this.isLong, this.last, this.p),
+    res
+  ).sort(Base.compareRes);
 };
 
 module.exports = Duel;
