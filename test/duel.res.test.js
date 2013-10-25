@@ -13,7 +13,7 @@ test("score affects only winner", function (t) {
     , gs = d.matches;
 
 
-  var verifyResDiff = function (res, newRes, pX, plusWins) {
+  var verifyResDiff = function (res, newRes, pX, plusWins, loser) {
     // pX is the modified player
     t.equal(newRes.length, res.length, "always same number of players in res");
     t.equal(res.length, n, "that number is always " + n);
@@ -27,8 +27,11 @@ test("score affects only winner", function (t) {
         // only a few things should have changed
         t.equal(el.wins + plusWins, newEl.wins, pX + " win's  === " + plusWins);
       }
-      else {
+      else if (loser !== el.seed) {
         t.deepEqual(el, newEl, "res element should be identical");
+      }
+      else {
+        t.equal(el.against+5, newEl.against, "except for extra points against");
       }
     });
   };
@@ -38,9 +41,9 @@ test("score affects only winner", function (t) {
 
   gs.forEach(function (m) {
     // NB: scoring it underdog way to ensure even long GF can be scored
-    t.ok(d.score(m.id, [0, 1]), 'could score ' + rep(m.id));
+    t.ok(d.score(m.id, [0, 5]), 'could score ' + rep(m.id));
     var newRes = d.results();
-    verifyResDiff(res, newRes, m.p[1], 1);
+    verifyResDiff(res, newRes, m.p[1], 1, m.p[0]);
     res = newRes;
   });
 

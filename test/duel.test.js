@@ -249,27 +249,27 @@ test("duel simple WB", function (t) {
     if (p.seed === 1) {
       t.equal(p.pos, 1, "player 1 gets 1st");
       t.equal(p.wins, 2, "player 1 win count"); // got 1 wo free
-      t.equal(p.maps, 2*2, "player 1 map count");
+      t.equal(p.for, 2*2, "player 1 map count");
     }
     else if (p.seed === 2) {
       t.equal(p.pos, 2, "player 2 gets 2nd");
       t.equal(p.wins, 1, "player 2 win count"); // 1 (+wo)
-      t.equal(p.maps, 1*2, "player 2 map count");
+      t.equal(p.for, 1*2, "player 2 map count");
     }
     else if (p.seed === 3) {
       t.equal(p.pos, 3, "player 3 gets 3rd");
       t.equal(p.wins, 1, "player 3 win count"); // 1 + bf (+wo)
-      t.equal(p.maps, 1*2, "player 3 map count");
+      t.equal(p.for, 1*2, "player 3 map count");
     }
     else if (p.seed === 4) {
       t.equal(p.pos, 4, "player 4 gets 4th");
       t.equal(p.wins, 1, "player 4 win count"); // 1
-      t.equal(p.maps, 1*2, "player 4 map count");
+      t.equal(p.for, 1*2, "player 4 map count");
     }
     else if (p.seed === 5) {
       t.equal(p.pos, 5, "player 5 gets 5");
       t.equal(p.wins, 0, "player 5 win count");
-      t.equal(p.maps, 0*2, "player 5 map count");
+      t.equal(p.for, 0*2, "player 5 map count");
     }
     else {
       t.ok(false, "should not be any other players in results");
@@ -343,27 +343,27 @@ test("duel detailed LB", function (t) {
     if (p.seed === 2) {
       t.equal(p.pos, 1, "player 2 gets 1st");
       t.equal(p.wins, 3, "player 2 win count");
-      t.equal(p.maps, 3*2, "player 2 map count");
+      t.equal(p.for, 3*2, "player 2 map count");
     }
     else if (p.seed === 3) {
       t.equal(p.pos, 2, "player 3 gets 2nd");
       t.equal(p.wins, 3, "player 3 win count");
-      t.equal(p.maps, 3*2, "player 3 map count");
+      t.equal(p.for, 3*2, "player 3 map count");
     }
     else if (p.seed === 4) {
       t.equal(p.pos, 3, "player 4 gets 3rd");
       t.equal(p.wins, 2, "player 4 win count");
-      t.equal(p.maps, 2*2, "player 4 map count");
+      t.equal(p.for, 2*2, "player 4 map count");
     }
     else if (p.seed === 5) {
       t.equal(p.pos, 4, "player 5 gets 4th");
       t.equal(p.wins, 1, "player 5 win count");
-      t.equal(p.maps, 1*2, "player 5 map count");
+      t.equal(p.for, 1*2, "player 5 map count");
     }
     else if (p.seed === 1) {
       t.equal(p.pos, 5, "player 1 gets 5-6th");
       t.equal(p.wins, 0, "player 1 win count");
-      t.equal(p.maps, 0*2, "player 1 map count");
+      t.equal(p.for, 0*2, "player 1 map count");
     }
     else {
       t.ok(false, "should not be any other players in results");
