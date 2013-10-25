@@ -1,3 +1,9 @@
+0.3.0 / 2013-10-25
+==================
+  * Use tournament@0.17.0 interface
+  * Rename `maps` to `for` and add `against` as well to count both map wins and map losses
+  * Huge code readability improvements
+
 0.2.0 / 2013-10-22
 ==================
   * Use tournament@0.16.0 interface
