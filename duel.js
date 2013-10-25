@@ -129,15 +129,6 @@ var invalid = function (np, last, opts) {
 // a match has the form {p: playerArray, s: bracketNum, r: roundNum, m: matchNum}
 // bracket, round and match number are 1 indexed
 var elimination = function (size, p, last, isLong) {
-  var invReason = invalid(size, last, {limit: 0, short: !isLong});
-  if (invReason !== null) {
-    console.error("invalid Duel configuration %dp in %s elimination"
-      , size, brackets[last] || 'invalid');
-    console.error("reason: ", invReason);
-    return [];
-  }
-
-  // console.log('creating %dp %s elimination tournament', size, brackets[last]);
   // create round 1,2 in WB & LB
   var matches = makeFirstRounds(size, p, last);
 
