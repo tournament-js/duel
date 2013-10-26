@@ -197,8 +197,7 @@ var updateBasedOnMatch = function (isLong, last, p, res, g) {
     // when we have scores, we have a winner and a loser
     var p0 = g.p[0] - 1
       , p1 = g.p[1] - 1
-      , w = (g.m[0] > g.m[1]) ? p0 : p1
-      , l = (g.m[0] > g.m[1]) ? p1 : p0;
+      , w = (g.m[0] > g.m[1]) ? p0 : p1;
 
     // inc wins
     res[w].wins += 1;
@@ -207,19 +206,10 @@ var updateBasedOnMatch = function (isLong, last, p, res, g) {
     res[p0].against += g.m[1];
     res[p1].against += g.m[0];
 
-    // finals handling (if played) - overwrites earlier handling
-    if (isBf) {
-      res[l].pos = 4;
-      res[w].pos = 3;
-    }
-    else if (isWbGf) {
-      res[l].pos = 2;
-      res[w].pos = 1;
-    }
-    else if (isLbGfs) {
-      var isConclusive = g.id.r === 2*p || !isLong || p0 === w;
-      res[l].pos = 2;
-      res[w].pos = isConclusive ? 1 : 2;
+    // bump winners of finals
+    var isConclusiveLbGf = isLbGfs && (g.id.r === 2*p || !isLong || p0 === w);
+    if (isBf || isWbGf || isConclusiveLbGf) {
+      res[w].pos -= 1;
     }
   }
   return res;
