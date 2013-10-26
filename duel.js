@@ -111,20 +111,6 @@ var makeFirstRounds = function (size, p, last) {
   return matches;
 };
 
-var invalid = function (np, last, opts) {
-  opts = opts || {};
-  if (!Base.isInteger(np) || np < 4 || np > 1024) {
-    return "duel tournament size must be an integer n, s.t. 4 <= n <= 1024";
-  }
-  if ([WB, LB].indexOf(last) < 0) {
-    return "last Duel elimination bracket must be t.WB or t.LB";
-  }
-  if (opts.limit) { // TODO: possible to do I guess..
-    return "Duel limits are not yet supported - Duel must be the last stage";
-  }
-  return null;
-};
-
 // return an array of matches for a tournament
 // a match has the form {p: playerArray, s: bracketNum, r: roundNum, m: matchNum}
 // bracket, round and match number are 1 indexed
@@ -249,7 +235,20 @@ Object.keys(consts).forEach(function (key) {
   });
 });
 
-Duel.invalid = invalid;
+Duel.invalid = function (np, last, opts) {
+  opts = opts || {};
+  if (!Base.isInteger(np) || np < 4 || np > 1024) {
+    return "duel tournament size must be an integer n, s.t. 4 <= n <= 1024";
+  }
+  if ([WB, LB].indexOf(last) < 0) {
+    return "last Duel elimination bracket must be t.WB or t.LB";
+  }
+  if (opts.limit) { // TODO: possible to do I guess..
+    return "Duel limits are not yet supported - Duel must be the last stage";
+  }
+  return null;
+};
+
 Duel.idString = idString;
 
 // roundName module
@@ -413,10 +412,10 @@ var updateBasedOnMatch = function (isLong, last, p, res, g) {
 Duel.prototype.initResult = function () {
   return { against: 0 };
 };
-Duel.prototype.stats = function (res) {
+Duel.prototype.stats = function (resAry) {
   return this.matches.reduce(
     updateBasedOnMatch.bind(this, this.isLong, this.last, this.p),
-    res
+    resAry
   ).sort(Base.compareRes);
 };
 
