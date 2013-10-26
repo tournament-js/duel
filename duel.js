@@ -9,15 +9,6 @@ const WB = 1
 var blank = function () {
   return [Base.NONE, Base.NONE];
 };
-
-// map last bracket num to elimination type
-var brackets = [
-  'invalid', // put this in here so the Array is aligned right
-  'single',
-  'double',
-  'triple'   // not supported atm
-];
-
 // mark players that had to be added to fit model as WO's
 var woMark = function (ps, size) {
   return ps.map(function (p) {
@@ -41,9 +32,6 @@ var idString = function (id) {
   // else assume no bracket identifier wanted
   return (rep + "R" + id.r + " M" + id.m);
 };
-
-// -----------------------------------------------------------------------------
-// duel elimination stuff
 
 // helpers to initialize duel tournaments
 // http://clux.org/entries/view/2407
@@ -111,14 +99,11 @@ var makeFirstRounds = function (size, p, last) {
   return matches;
 };
 
-// return an array of matches for a tournament
-// a match has the form {p: playerArray, s: bracketNum, r: roundNum, m: matchNum}
-// bracket, round and match number are 1 indexed
+// make ALL matches for a Duel elimination tournament
 var elimination = function (size, p, last, isLong) {
-  // create round 1,2 in WB & LB
-  var matches = makeFirstRounds(size, p, last);
+  var matches = makeFirstRounds(size, p, last); // WBR1 WBR2 LBR1 LBR2
 
-  // remaining WB rounds (which never get WO markers from first fill-in)
+ // remaining WB rounds (always blank regardless of WOs earlier)
   var r, g;
   for (r = 3; r <= p; r += 1) {
     for (g = 1; g <= Math.pow(2, p - r); g += 1) {
@@ -129,6 +114,7 @@ var elimination = function (size, p, last, isLong) {
     matches.push({id: gId(LB, 1, 1), p: blank()});       // bronze final
   }
 
+  // remaining LB rounds (also blank)
   if (last >= LB) {
     for (r = 3; r <= 2*p - 2; r += 1) {
       // number of matches halves every odd round in losers bracket
@@ -145,7 +131,7 @@ var elimination = function (size, p, last, isLong) {
   return matches.sort(Base.compareMatches); // sort so they can be scored in order
 };
 
-// helper for score - takes a generic progress function (down or right)
+// helper for progress - takes a generic progress function (down or right)
 // and sends the advancer to whatever this function returns
 var playerInsert = function (progress, adv) {
   if (progress) {
@@ -166,176 +152,7 @@ var playerInsert = function (progress, adv) {
   }
 };
 
-var Duel = Base.sub('Duel', ['numPlayers', 'last', 'opts'], {
-  init: function (initParent) {
-    this.version = 1;
-    this.p = Math.ceil(Math.log(this.numPlayers) / Math.log(2));
-
-    // isLong is the default final behaviour, which can be turned off via opts.short
-    // isLong for WB => hasBF, isLong for LB => hasGf2
-    this.isLong = true;
-    this.limit = 0;
-    if (this.opts) {
-      this.isLong = !this.opts.short;
-      this.limit = this.opts.limit | 0; // not in use atm
-    }
-    delete this.opts;
-    var ms = elimination(this.numPlayers, this.p, this.last, this.isLong);
-    initParent(ms);
-  },
-
-  progress: function (m) {
-    // helper to insert player adv into [id, pos] from progression fns
-    var inserter = playerInsert.bind(this);
-
-    // 1. calculate winner and loser for progression
-    var w = (m.m[0] > m.m[1]) ? m.p[0] : m.p[1]
-      , l = (m.m[0] > m.m[1]) ? m.p[1] : m.p[0];
-    // an underdog win may force a double match where brackets join
-    // currently, this only happens in double elimination in GF1 and isLong
-    var underdogWon = (w === m.p[1]);
-
-    // 2. move winner right
-    // NB: non-WO match `id` cannot `right` into a WOd match => discard res
-    inserter(this.right(m.id, underdogWon), w);
-
-    // 3. move loser down if applicable
-    var dres = inserter(this.down(m.id, underdogWon), l);
-
-    // 4. check if loser must be forwarded from existing WO in LBR1/LBR2
-    // NB: underdogWon is never relevant as LBR2 is always before GF1 when p >= 2
-    if (dres) {
-      inserter(this.right(dres, false), l);
-    }
-  },
-
-  verify: function (m, score) {
-    if (m.p[0] === WO || m.p[1] === WO) {
-      return "cannot override score in walkover'd match";
-    }
-    if (score[0] === score[1]) {
-      return "cannot draw a duel";
-    }
-    return null;
-  },
-
-  early: function () {
-    var gf1 = this.matches[this.matches.length - 2];
-    return this.isLong && this.last === LB && gf1.m && gf1.m[0] > gf1.m[1];
-  }
-  // TODO: move stats up here
-});
-
-// constructor consts
-var consts = {WB: WB, LB: LB, WO: WO};
-Object.keys(consts).forEach(function (key) {
-  Object.defineProperty(Duel, key, {
-    enumerable: true,
-    value: consts[key]
-  });
-});
-
-Duel.invalid = function (np, last, opts) {
-  opts = opts || {};
-  if (!Base.isInteger(np) || np < 4 || np > 1024) {
-    return "duel tournament size must be an integer n, s.t. 4 <= n <= 1024";
-  }
-  if ([WB, LB].indexOf(last) < 0) {
-    return "last Duel elimination bracket must be t.WB or t.LB";
-  }
-  if (opts.limit) { // TODO: possible to do I guess..
-    return "Duel limits are not yet supported - Duel must be the last stage";
-  }
-  return null;
-};
-
-Duel.idString = idString;
-
-// roundName module
-Duel.prototype.roundName = require('./duel_names')(consts);
-
-// progression helpers, winner in `id` goes right to returned id or tournament over
-Duel.prototype.right = function (id, underdogWon) {
-  var b = id.s
-    , r = id.r
-    , g = id.m
-    , p = this.p
-    , last = this.last
-    , isLong = this.isLong;
-
-  // cases where progression stops for winners
-  var isFinalSe = (last === WB && r === p)
-    , isFinalDe = (last === LB && b === LB && r === 2*p)
-    , isBronze = (last === WB && b === LB)
-    , isShortLbGf = (b === LB && r === 2*p - 1 && (!isLong || !underdogWon));
-
-  if (isFinalSe || isFinalDe || isBronze || isShortLbGf) {
-    return null;
-  }
-
-  // special case of WB winner moving to LB GF G1
-  if (last >= LB && b === WB && r === p) {
-    return [gId(LB, 2*p - 1, 1), 0];
-  }
-
-  // for LB positioning
-  var ghalf = (b === LB && $.odd(r)) ? g : Math.floor((g + 1) / 2);
-
-  var pos;
-  if (b === WB) {
-    pos = (g + 1) % 2; // normal WB progression
-  }
-  else if (r === 2*p - 2) {
-    pos = 1; // LB final winner => bottom of GF
-  }
-  else if (r === 2*p - 1) {
-    pos = 0; // GF(1) winner moves to the top
-  }
-  else if (r === 1) {
-    pos = g % 2; // LBR1 winners move inversely to normal progression
-  }
-  else if ($.odd(r)) {
-    pos = 1; // winner usually takes bottom position in LB
-  }
-  else {
-    pos = (g + 1) % 2; // normal progression only in even rounds
-  }
-
-  // normal progression
-  return [gId(b, r + 1, ghalf), pos];
-};
-
-Duel.prototype.down = function (id, underdogWon) {
-  var b = id.s
-    , r = id.r
-    , g = id.m
-    , p = this.p
-    , last = this.last
-    , isLong = this.isLong;
-
-  // knockouts / special finals
-  if (b >= last) { // greater than case is for BF in long single elimination
-    if (b === WB && isLong && r === p - 1) {
-      // if bronze final, move loser to "LBR1" at mirror pos of WBGF
-      return [gId(LB, 1, 1), (g + 1) % 2];
-    }
-    if (b === LB && r === 2*p - 1 && isLong && underdogWon) {
-      // if double final, then loser moves to the bottom
-      return [gId(LB, 2 * p, 1), 1];
-    }
-    // otherwise always KO'd if loosing in >= last bracket
-    return null;
-  }
-
-  // LB drops: on top for (r>2) and (r<=2 if odd g) to match bracket movement
-  var pos = (r > 2 || $.odd(g)) ? 0 : 1;
-  // LBR1 only fed by WBR1 (halves normally), else feed -> r=2x later (w/matching g)
-  var dId = (r === 1) ? gId(LB, 1, Math.floor((g+1)/2)) : gId(LB, (r-1)*2, g);
-
-  return [dId, pos];
-};
-
-// results helpers
+// stats helpers
 var lbPos = function (p, maxr) {
   // model position as y = 2^(k+1) + c_k2^k + 1
   // where k(maxr) = floor(roundDiff/2)
@@ -350,7 +167,7 @@ var lbPos = function (p, maxr) {
 };
 
 var wbPos = function (p, maxr) {
-  // similar but simpler, double each round, and note tat ties are + 1
+  // similar but simpler, double each round, and note that ties are + 1
   // works up to and including semis (WBF + BF must be positioned manually)
   return Math.pow(2, p - maxr) + 1;
 };
@@ -408,15 +225,175 @@ var updateBasedOnMatch = function (isLong, last, p, res, g) {
   return res;
 };
 
-// extra properties
-Duel.prototype.initResult = function () {
-  return { against: 0 };
+// actual interface
+var Duel = Base.sub('Duel', ['numPlayers', 'last', 'opts'], {
+  init: function (initParent) {
+    this.version = 1;
+    this.p = Math.ceil(Math.log(this.numPlayers) / Math.log(2));
+
+    // isLong is the default final behaviour, which can be turned off via opts.short
+    // isLong for WB => hasBF, isLong for LB => hasGf2
+    this.isLong = true;
+    this.limit = 0;
+    if (this.opts) {
+      this.isLong = !this.opts.short;
+      this.limit = this.opts.limit | 0; // not in use atm
+    }
+    delete this.opts;
+    var ms = elimination(this.numPlayers, this.p, this.last, this.isLong);
+    initParent(ms);
+  },
+
+  progress: function (m) {
+    // helper to insert player adv into [id, pos] from progression fns
+    var inserter = playerInsert.bind(this);
+
+    // 1. calculate winner and loser for progression
+    var w = (m.m[0] > m.m[1]) ? m.p[0] : m.p[1]
+      , l = (m.m[0] > m.m[1]) ? m.p[1] : m.p[0];
+    // an underdog win may force a double match where brackets join
+    // currently, this only happens in double elimination in GF1 and isLong
+    var underdogWon = (w === m.p[1]);
+
+    // 2. move winner right
+    // NB: non-WO match `id` cannot `right` into a WOd match => discard res
+    inserter(this.right(m.id, underdogWon), w);
+
+    // 3. move loser down if applicable
+    var dres = inserter(this.down(m.id, underdogWon), l);
+
+    // 4. check if loser must be forwarded from existing WO in LBR1/LBR2
+    // NB: underdogWon is never relevant as LBR2 is always before GF1 when p >= 2
+    if (dres) {
+      inserter(this.right(dres, false), l);
+    }
+  },
+
+  verify: function (m, score) {
+    if (m.p[0] === WO || m.p[1] === WO) {
+      return "cannot override score in walkover'd match";
+    }
+    if (score[0] === score[1]) {
+      return "cannot draw a duel";
+    }
+    return null;
+  },
+
+  early: function () {
+    var gf1 = this.matches[this.matches.length - 2];
+    return this.isLong && this.last === LB && gf1.m && gf1.m[0] > gf1.m[1];
+  },
+
+  initResult: function () {
+    return { against: 0 };
+  },
+  stats: function (resAry) {
+    return this.matches.reduce(
+      updateBasedOnMatch.bind(this, this.isLong, this.last, this.p),
+      resAry
+    ).sort(Base.compareRes);
+  }
+});
+
+// constructor consts
+var consts = {WB: WB, LB: LB, WO: WO};
+Object.keys(consts).forEach(function (key) {
+  Object.defineProperty(Duel, key, {
+    enumerable: true,
+    value: consts[key]
+  });
+});
+
+Duel.invalid = function (np, last, opts) {
+  opts = opts || {};
+  if (!Base.isInteger(np) || np < 4 || np > 1024) {
+    return "duel tournament size must be an integer n, s.t. 4 <= n <= 1024";
+  }
+  if ([WB, LB].indexOf(last) < 0) {
+    return "last Duel elimination bracket must be t.WB or t.LB";
+  }
+  if (opts.limit) { // TODO: possible to do I guess..
+    return "Duel limits are not yet supported - Duel must be the last stage";
+  }
+  return null;
 };
-Duel.prototype.stats = function (resAry) {
-  return this.matches.reduce(
-    updateBasedOnMatch.bind(this, this.isLong, this.last, this.p),
-    resAry
-  ).sort(Base.compareRes);
+
+Duel.idString = idString;
+
+// extra prototype methods
+Duel.prototype.roundName = require('./duel_names')(consts);
+
+// progression helpers, winner in `id` goes right to returned id or tournament over
+Duel.prototype.right = function (id, underdogWon) {
+  var b = id.s
+    , r = id.r
+    , g = id.m
+    , p = this.p;
+
+  // cases where progression stops for winners
+  var isFinalSe = (this.last === WB && r === p)
+    , isFinalDe = (this.last === LB && b === LB && r === 2*p)
+    , isBronze = (this.last === WB && b === LB)
+    , isShortLbGf = (b === LB && r === 2*p - 1 && (!this.isLong || !underdogWon));
+
+  if (isFinalSe || isFinalDe || isBronze || isShortLbGf) {
+    return null;
+  }
+
+  // special case of WB winner moving to LB GF G1
+  if (this.last >= LB && b === WB && r === p) {
+    return [gId(LB, 2*p - 1, 1), 0];
+  }
+
+  // for LB positioning
+  var ghalf = (b === LB && $.odd(r)) ? g : Math.floor((g + 1) / 2);
+
+  var pos;
+  if (b === WB) {
+    pos = (g + 1) % 2; // normal WB progression
+  }
+  // LB progression
+  else if (r >= 2*p - 2) {
+    pos = (r + 1) % 2; // LB final winner -> bottom & GF(1) underdog winner -> top
+  }
+  else if (r === 1) {
+    pos = g % 2; // LBR1 winners move inversely to normal progression
+  }
+  else {
+    // winner from LB always bottom in odd rounds, otherwise normal progression
+    pos = $.odd(r) ? 1 : (g + 1) % 2;
+  }
+
+  // normal progression
+  return [gId(b, r + 1, ghalf), pos];
+};
+
+Duel.prototype.down = function (id, underdogWon) {
+  var b = id.s
+    , r = id.r
+    , g = id.m
+    , p = this.p;
+
+  // knockouts / special finals
+  if (b >= this.last) { // greater than case is for BF in long single elimination
+    if (b === WB && this.isLong && r === p - 1) {
+      // if bronze final, move loser to "LBR1" at mirror pos of WBGF
+      return [gId(LB, 1, 1), (g + 1) % 2];
+    }
+    if (b === LB && r === 2*p - 1 && this.isLong && underdogWon) {
+      // if double final, then loser moves to the bottom
+      return [gId(LB, 2 * p, 1), 1];
+    }
+    // otherwise always KO'd if loosing in >= last bracket
+    return null;
+  }
+
+  // LB drops: on top for (r>2) and (r<=2 if odd g) to match bracket movement
+  var pos = (r > 2 || $.odd(g)) ? 0 : 1;
+  // LBR1 only fed by WBR1 (halves normally), else feed -> r=2x later (w/matching g)
+  var dId = (r === 1) ? gId(LB, 1, Math.floor((g+1)/2)) : gId(LB, (r-1)*2, g);
+
+  return [dId, pos];
 };
 
 module.exports = Duel;
