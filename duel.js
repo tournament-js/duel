@@ -110,9 +110,6 @@ var elimination = function (size, p, last, isLong) {
       matches.push({id: gId(WB, r, g), p: blank()});
     }
   }
-  if (last === WB && isLong) {
-    matches.push({id: gId(LB, 1, 1), p: blank()});       // bronze final
-  }
 
   // remaining LB rounds (also blank)
   if (last >= LB) {
@@ -122,11 +119,11 @@ var elimination = function (size, p, last, isLong) {
         matches.push({id: gId(LB, r, g), p: blank()});
       }
     }
-
     matches.push({id: gId(LB, 2*p - 1, 1), p: blank()}); // grand final match 1
-    if (isLong) {
-      matches.push({id: gId(LB, 2*p, 1), p: blank()});   // grand final match 2
-    }
+  }
+  if (isLong) {
+    // bronze final if last === WB, else grand final match 2
+    matches.push({ id: gId(LB, last === LB ? 2*p : 1, 1), p: blank() });
   }
   return matches.sort(Base.compareMatches); // sort so they can be scored in order
 };
@@ -183,7 +180,7 @@ var updateBasedOnMatch = function (isLong, last, p, res, g) {
     , isLbGfs = last === LB && g.id.s === LB && g.id.r >= 2*p - 1
     , isLongSemi = isLong && last === WB && g.id.s === WB && g.id.r === p-1
     , canPosition = !isBf && !isWbGf && !isLbGfs && !isLongSemi
-    , maxr = (last === LB && g.id.s === WB) ? this.down(g.id, false)[0].r : g.id.r;
+    , maxr = (g.id.s < last) ? this.down(g.id, false)[0].r : g.id.r;
 
   // handle players that have reached the match
   g.p.filter($.gt(0)).forEach(function (s) {
@@ -274,9 +271,7 @@ var Duel = Base.sub('Duel', ['numPlayers', 'last', 'opts'], {
     return this.isLong && this.last === LB && gf1.m && gf1.m[0] > gf1.m[1];
   },
 
-  initResult: function () {
-    return { against: 0 };
-  },
+  initResult: $.constant({ against: 0}),
   stats: function (resAry) {
     return this.matches.reduce(
       updateBasedOnMatch.bind(this, this.isLong, this.last, this.p),
