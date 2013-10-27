@@ -81,7 +81,7 @@ var elimination = function (size, p, last, isLong) {
 };
 
 //------------------------------------------------------------------
-// progression helpers - assumes instance context
+// progression helpers - assume instance context
 //------------------------------------------------------------------
 
 // find what match and position a winner moves "right" to in the current bracket
@@ -159,7 +159,6 @@ var down = function (id, underdogWon) {
 };
 
 // given a direction (one of the above two), move an 'advancer' to that location
-// assumes instance context for `findMatch` and `rep`
 var playerInsert = function (progress, adv) {
   if (progress) {
     var id = progress[0]
@@ -175,6 +174,16 @@ var playerInsert = function (progress, adv) {
       insertM.m = (pos) ? [0, 1] : [1, 0]; // set WO map scores
       return insertM.id; // this id was won by adv on WO, inform
     }
+  }
+};
+
+// helper to initially score matches with walkovers correctly
+var woScore = function (m) {
+  var idx = m.p.indexOf(WO);
+  if (idx >= 0) {
+    // set scores manually to avoid the `verify` walkover scoring restriction
+    m.m = (idx === 0) ? [0, 1] : [1, 0];
+    this.progress(m);
   }
 };
 
@@ -264,21 +273,11 @@ var Duel = Base.sub('Duel', ['numPlayers', 'last', 'opts'], {
     delete this.opts;
     initParent(elimination(this.numPlayers, this.p, this.last, this.isLong));
 
-    // do a .score on all matches containing WO markers:
-    // - WBR1 so that WBR2 and LBR1 is ready
-    // - LBR1 so that LBR2 is ready
-    var woScore = function (m) {
-      var idx = m.p.indexOf(WO);
-      if (idx >= 0) {
-        // set scores manually to avoid the `verify` walkover scoring restriction
-        m.m = (idx === 0) ? [0, 1] : [1, 0];
-        this.progress(m);
-      }
-    }.bind(this);
-
-    this.findMatches({s: WB, r:1}).forEach(woScore);
+    // manually progress WO markers
+    var scorer = woScore.bind(this);
+    this.findMatches({s: WB, r:1}).forEach(scorer);
     if (this.last > WB) {
-      this.findMatches({s: LB, r:1}).forEach(woScore);
+      this.findMatches({s: LB, r:1}).forEach(scorer);
     }
   },
 
