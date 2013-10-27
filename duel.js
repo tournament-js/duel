@@ -52,74 +52,31 @@ var seeds = function (i, p) {
   return [Math.pow(2, p) + 1 - even, even];
 };
 
-var makeFirstRounds = function (size, p, last) {
-  var model = Math.pow(2, p) // model >= size (equals iff size is a power of 2)
-    , matches = []
-    , lbm1, lbm2, wbm2; // placeholders for LBR1, LBR2 & WBR2 (used in even itrs)
-
-  for (var i = 1; i <= model / 2; i += 1) {
-    var ps = woMark(seeds(i, p), size)
-      , isEven = Number(i % 2 === 0)
-      , wbm1 = {id: gId(WB, 1, i), p: ps};
-
-    // create shells for WBR2, LBR1 & LBR2
-    if (!isEven) {
-      var next = (i+1) / 2;
-      wbm2 = {id: gId(WB, 2, next), p: blank()};
-
-      if (last >= LB) {
-        lbm1 = {id: gId(LB, 1, next), p: blank()};
-        lbm2 = {id: gId(LB, 2, next), p: blank()};
-      }
-    }
-
-    if (ps[0] === WO || ps[1] === WO) {
-      wbm2.p[isEven] = ps[Number(ps[0] === WO)]; // advance winner
-      wbm1.m = (ps[0] === WO) ? [0, 1] : [1, 0]; // set WO score in wbm1
-
-      if (last >= LB) {
-        lbm1.p[isEven] = WO; // wo marker 'lost', so goes to LBR1
-        if (lbm1.p[0] === WO && lbm1.p[1] === WO) {
-          // NB: here in even itrs when we have rare 2x WO markers in an LBR1 match
-          lbm2.p[Number(!isEven)] = WO; // pass it on (w/LBR2's inverse propagation)
-          lbm1.m = [1, 0]; // randomly score one as the winner
-        }
-      }
-    }
-
-    matches.push(wbm1);
-    // progressed shells pushed to matches every other iteration
-    if (isEven) {
-      matches.push(wbm2);
-      if (last >= LB) {
-        matches.push(lbm1, lbm2);
-      }
-    }
-  }
-  return matches;
-};
-
 // make ALL matches for a Duel elimination tournament
 var elimination = function (size, p, last, isLong) {
-  var matches = makeFirstRounds(size, p, last); // WBR1 WBR2 LBR1 LBR2
+  var matches = [];
+  // first WB round to initialize players
+  for (var i = 1; i <= Math.pow(2, p - 1); i += 1) {
+    matches.push({ id: gId(WB, 1, i), p: woMark(seeds(i, p), size) });
+  }
 
- // remaining WB rounds (always blank regardless of WOs earlier)
+ // blank WB rounds
   var r, g;
-  for (r = 3; r <= p; r += 1) {
+  for (r = 2; r <= p; r += 1) {
     for (g = 1; g <= Math.pow(2, p - r); g += 1) {
-      matches.push({id: gId(WB, r, g), p: blank()});
+      matches.push({id: gId(WB, r, g), p: blank() });
     }
   }
 
-  // remaining LB rounds (also blank)
+  // blank LB rounds
   if (last >= LB) {
-    for (r = 3; r <= 2*p - 2; r += 1) {
+    for (r = 1; r <= 2*p - 2; r += 1) {
       // number of matches halves every odd round in losers bracket
       for (g = 1; g <= Math.pow(2, p - 1 - Math.floor((r + 1) / 2)); g += 1) {
-        matches.push({id: gId(LB, r, g), p: blank()});
+        matches.push({ id: gId(LB, r, g), p: blank() });
       }
     }
-    matches.push({id: gId(LB, 2*p - 1, 1), p: blank()}); // grand final match 1
+    matches.push({ id: gId(LB, 2*p - 1, 1), p: blank() }); // grand final match 1
   }
   if (isLong) {
     // bronze final if last === WB, else grand final match 2
@@ -229,6 +186,23 @@ var Duel = Base.sub('Duel', ['numPlayers', 'last', 'opts'], {
     delete this.opts;
     var ms = elimination(this.numPlayers, this.p, this.last, this.isLong);
     initParent(ms);
+
+    // do a .score on all matches containing WO markers:
+    // - WBR1 so that WBR2 and LBR1 is ready
+    // - LBR1 so that LBR2 is ready
+    var woScore = function (m) {
+      var idx = m.p.indexOf(WO);
+      if (idx >= 0) {
+        // set scores manually to avoid the `verify` walkover scoring restriction
+        m.m = (idx === 0) ? [0, 1] : [1, 0];
+        this.progress(m);
+      }
+    }.bind(this);
+
+    this.findMatches({s: WB, r:1}).forEach(woScore);
+    if (this.last > WB) {
+      this.findMatches({s: LB, r:1}).forEach(woScore);
+    }
   },
 
   progress: function (m) {
