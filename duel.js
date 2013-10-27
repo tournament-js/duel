@@ -184,8 +184,7 @@ var Duel = Base.sub('Duel', ['numPlayers', 'last', 'opts'], {
       this.limit = this.opts.limit | 0; // not in use atm
     }
     delete this.opts;
-    var ms = elimination(this.numPlayers, this.p, this.last, this.isLong);
-    initParent(ms);
+    initParent(elimination(this.numPlayers, this.p, this.last, this.isLong));
 
     // do a .score on all matches containing WO markers:
     // - WBR1 so that WBR2 and LBR1 is ready
