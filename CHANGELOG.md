@@ -1,3 +1,8 @@
+0.4.0 / 2013-10-31
+==================
+  * `last` now passed in as an optional argument (single elimination default)
+  * Use tournament@0.18.0 interface
+
 0.3.0 / 2013-10-25
 ==================
   * Use tournament@0.17.0 interface

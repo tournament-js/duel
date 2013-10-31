@@ -18,17 +18,17 @@ For readibility and convenience:
 - `LB` := `Duel.LB` := `2`
 
 ## Construction
-Specify the number of players and the last bracket, and a third optional options object.
+Specify the number of players an optional options object.
 
 ```js
-// 4 players - double elimination
-var duel1 = new Duel(4, LB, opts);
-
 // 5 players - single elimination (8 player model)
-var duel3 = new Duel(5, WB);
+var duel3 = new Duel(5);
+
+// 4 players - double elimination
+var duel1 = new Duel(4, { last: LB });
 ```
 
-The `Duel.invalid(numPlayers, lastBracket, opts)` will tell you whether the constructor arguments produce a valid tournament. Read its entry in the [tournament commonalities doc](./base.md#ensuring-constructibility) for info on this.
+The `Duel.invalid(numPlayers, opts)` will tell you whether the constructor arguments produce a valid tournament. Read its entry in the [tournament commonalities doc](./base.md#ensuring-constructibility) for info on this.
 
 The only option supported at the moment is a boolean `short`:
 
@@ -42,10 +42,10 @@ Passing a `short:true` flag in the options object to the `Duel` constructor will
 
 ```js
 // no bronze final in this
-var duelSingle = new Duel(16, WB, {short: true});
+var duelSingle = new Duel(16, { short: true });
 
 // winner of LB can win the grand final in one match
-var duelDouble = new Duel(16, LB, {short: true});
+var duelDouble = new Duel(16, { last: LB, short: true });
 ```
 
 **NB:** Short double elimination tournaments are strongly discouraged because they breaks several fairness properties. As a worst case example, if player 1 and 4 met early in the tournament and 1 won, 4 could come back from the losers bracket and win the grand final in one game despite the two players being 1-1 in games overall in the tournament.
