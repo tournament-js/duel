@@ -4,7 +4,7 @@ var tap = require('tap')
   , Duel = require('../duel.js');
 
 test("names 32 WB", function (t) {
-  var d = new Duel(32, Duel.WB) // using bronze final
+  var d = new Duel(32, { last: Duel.WB }) // using bronze final
     , gs = d.matches;
 
   var rounds = $.nub(gs.map($.get('id', 'r'))).sort($.compare());
@@ -35,7 +35,7 @@ test("names 32 WB", function (t) {
 });
 
 test("names 32 LB", function (t) {
-  var d = new Duel(32, Duel.LB) // using double final
+  var d = new Duel(32, { last: Duel.LB }) // using double final
     , gs = d.matches;
   // should be 2*p === LB rounds === 2*5 = 10
   var checkLb = function (r, name) {

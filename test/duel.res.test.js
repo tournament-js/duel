@@ -9,7 +9,7 @@ const LB = Duel.LB;
 
 test("score affects only winner", function (t) {
   var n = 16
-    , d = new Duel(n, LB)
+    , d = new Duel(n, { last: LB })
     , gs = d.matches;
 
 
@@ -54,7 +54,7 @@ test("score affects only winner", function (t) {
 test("duel results detailed WB 16", function (t) {
   [false, true].forEach(function (shrt) {
     // first runthrough with bronze final, second without
-    var duel = new Duel(16, WB, {short: shrt})
+    var duel = new Duel(16, { short: shrt, last: WB })
       , gs = duel.matches;
 
     duel.results().forEach(function (r) {
@@ -151,7 +151,7 @@ test("duel results detailed LB 8", function (t) {
   [false, true].forEach(function (shrt) {
 
     // first runthrough with gf2, second without
-    var duel = new Duel(8, LB, {short: shrt})
+    var duel = new Duel(8, { short: shrt, last: LB })
       , gs = duel.matches;
 
     duel.results().forEach(function (r) {

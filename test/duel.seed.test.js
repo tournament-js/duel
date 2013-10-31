@@ -6,7 +6,7 @@ var tap = require('tap')
 
 
 test("seeding assumption", function (t) {
-  var d = new Duel(512, Duel.WB, {short:true}) // bf irrelevant
+  var d = new Duel(512, { last: Duel.WB, short:true }) // bf irrelevant
     , gs = d.matches;
 
   var verifyRound = function (r, len) {

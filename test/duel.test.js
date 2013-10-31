@@ -9,7 +9,7 @@ const WO = Duel.WO;
 
 test("duel LB underdog + scorable", function (t) {
   // long LB underdog lost
-  var duel = new Duel(16, LB, {short:false});
+  var duel = new Duel(16, { last: LB, short: false });
   duel.matches.slice(0, -2).map(function (m, i) {
     t.equal(duel.unscorable(m.id, [1,0]), null, "can score long m" + i);
     t.ok(duel.score(m.id, m.p[0] < m.p[1] ? [2,1] : [1,2]), "can score long m" + i);
@@ -21,7 +21,7 @@ test("duel LB underdog + scorable", function (t) {
   t.ok(!duel.score($.last(duel.matches).id, [2, 1]), "could NOT score GF2");
 
   // long LB underdog won
-  duel = new Duel(16, LB, {short:false});
+  duel = new Duel(16, { last: LB, short: false });
   duel.matches.slice(0, -2).map(function (m, i) {
     t.equal(duel.unscorable(m.id, [1,0]), null, "can score long m" + i);
     t.ok(duel.score(m.id, m.p[0] < m.p[1] ? [2,1] : [1,2]), "can score long m" + i);
@@ -34,7 +34,7 @@ test("duel LB underdog + scorable", function (t) {
   t.ok(duel.isDone(), "long GF2 played so we are done");
 
   // short LB underdog lost
-  duel = new Duel(16, LB, {short:true});
+  duel = new Duel(16, { last: LB, short: true });
   duel.matches.map(function (m, i) {
     t.equal(duel.unscorable(m.id, [1,0]), null, "can score short m" + i);
     t.ok(duel.score(m.id, [1,2]), "can score short m" + i);
@@ -42,7 +42,7 @@ test("duel LB underdog + scorable", function (t) {
   t.ok(duel.isDone(), "duel tournament should be done now");
 
   // short LB underdog won
-  duel = new Duel(16, LB, {short:true});
+  duel = new Duel(16, { last: LB, short: true });
   duel.matches.map(function (m, i) {
     t.equal(duel.unscorable(m.id, [1,0]), null, "can score short m" + i);
     t.ok(duel.score(m.id, [2,1]), "can score short m" + i);
@@ -53,7 +53,7 @@ test("duel LB underdog + scorable", function (t) {
 });
 
 test("duel 16 WB serialize", function (t) {
-  var duel = new Duel(16, WB)
+  var duel = new Duel(16)
     , gs = duel.matches;
 
   var duel2 = Duel.parse(duel + '');
@@ -79,7 +79,7 @@ test("duel 16 WB serialize", function (t) {
 
 // same test wo bronze final
 test("duel 16 WB short serialize", function (t) {
-  var duel = new Duel(16, WB, {short: true})
+  var duel = new Duel(16, { short: true })
     , gs = duel.matches;
 
   t.equal(gs.length, Math.pow(2, duel.p) - 1, "np -1 == matches.length  w/o bronze");
@@ -106,7 +106,7 @@ test("duel 16 WB short serialize", function (t) {
 
 // same tests with LB
 test("duel 16 LB serialize", function (t) {
-  var duel = new Duel(16, LB)
+  var duel = new Duel(16, { last: LB })
     , gs = duel.matches;
 
   // sizeof WB === 2^p - 1
@@ -135,7 +135,7 @@ test("duel 16 LB serialize", function (t) {
 });
 
 test("duel 16 LB short serialize", function (t) {
-  var duel = new Duel(16, LB, {short: true})
+  var duel = new Duel(16, { last: LB, short: true })
     , gs = duel.matches;
 
   var duel2 = Duel.parse(duel + '');
@@ -163,7 +163,7 @@ test("duel 16 LB short serialize", function (t) {
 });
 
 test("duel WB general", function (t) {
-  var duel = new Duel(32, WB)
+  var duel = new Duel(32)
     , gs = duel.matches
     , p = duel.p;
 
@@ -192,7 +192,7 @@ test("duel WB general", function (t) {
 });
 
 test("duel LB general", function (t) {
-  var duel = new Duel(32, LB)
+  var duel = new Duel(32, { last: LB })
     , gs = duel.matches
     , p = duel.p;
 
@@ -224,7 +224,7 @@ test("duel LB general", function (t) {
 
 test("duel simple WB", function (t) {
   // try scoring everything in order
-  var duel = new Duel(5, WB)
+  var duel = new Duel(5)
     , gs = duel.matches;
 
   var lastM = gs[gs.length-1];
@@ -284,7 +284,7 @@ test("duel simple WB", function (t) {
 
 test("duel simple but big LB", function (t) {
   // try scoring everything in order
-  var duel = new Duel(128, LB)
+  var duel = new Duel(128, { last: LB })
     , gs = duel.matches
     , p = duel.p;
 
@@ -318,7 +318,7 @@ test("duel simple but big LB", function (t) {
 
 test("duel detailed LB", function (t) {
   // try scoring everything in order
-  var duel = new Duel(5, LB)
+  var duel = new Duel(5, { last: LB })
     , gs = duel.matches;
 
   var lastM = gs[gs.length-1];
@@ -378,7 +378,7 @@ test("duel detailed LB", function (t) {
 
 
 test("upcoming/scorable 8 LB", function (t) {
-  var d = new Duel(8, LB) // NO WO markers in this (easy case)
+  var d = new Duel(8, { last: LB }) // NO WO markers in this (easy case)
     , ms = d.matches;
 
   // WB check

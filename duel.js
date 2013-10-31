@@ -5,9 +5,6 @@ const WB = 1
     , LB = 2
     , WO = -1;
 
-var consts = {WB: WB, LB: LB, WO: WO};
-var roundNames = require('./duel_names')(consts);
-
 //------------------------------------------------------------------
 // Initialization helpers
 //------------------------------------------------------------------
@@ -257,108 +254,46 @@ var updateBasedOnMatch = function (isLong, last, p, res, g) {
 // Interface
 //------------------------------------------------------------------
 
-var Duel = Base.sub('Duel', ['numPlayers', 'last', 'opts'], {
-  init: function (initParent) {
-    this.version = 1;
-    this.p = Math.ceil(Math.log(this.numPlayers) / Math.log(2));
+var Duel = Base.sub('Duel', function (opts, initParent) {
+  this.isLong = opts.isLong; // isLong for WB => hasBF, isLong for LB => hasGf2
+  this.last = opts.last;
+  this.limit = opts.limit;
+  this.p = Math.ceil(Math.log(this.numPlayers) / Math.log(2));
+  initParent(elimination(this.numPlayers, this.p, this.last, this.isLong));
 
-    // isLong is the default final behaviour, which can be turned off via opts.short
-    // isLong for WB => hasBF, isLong for LB => hasGf2
-    this.isLong = true;
-    this.limit = 0;
-    if (this.opts) {
-      this.isLong = !this.opts.short;
-      this.limit = this.opts.limit | 0; // not in use atm
-    }
-    delete this.opts;
-    initParent(elimination(this.numPlayers, this.p, this.last, this.isLong));
-
-    // manually progress WO markers
-    var scorer = woScore.bind(this);
-    this.findMatches({s: WB, r:1}).forEach(scorer);
-    if (this.last > WB) {
-      this.findMatches({s: LB, r:1}).forEach(scorer);
-    }
-  },
-
-  progress: function (m) {
-    // helper to insert player adv into [id, pos] from progression fns
-    var inserter = playerInsert.bind(this);
-
-    // 1. calculate winner and loser for progression
-    var w = (m.m[0] > m.m[1]) ? m.p[0] : m.p[1]
-      , l = (m.m[0] > m.m[1]) ? m.p[1] : m.p[0];
-    // an underdog win may force a double match where brackets join
-    // currently, this only happens in double elimination in GF1 and isLong
-    var underdogWon = (w === m.p[1]);
-
-    // 2. move winner right
-    // NB: non-WO match `id` cannot `right` into a WOd match => discard res
-    inserter(this.right(m.id, underdogWon), w);
-
-    // 3. move loser down if applicable
-    var dres = inserter(this.down(m.id, underdogWon), l);
-
-    // 4. check if loser must be forwarded from existing WO in LBR1/LBR2
-    // NB: underdogWon is never relevant as LBR2 is always before GF1 when p >= 2
-    if (dres) {
-      inserter(this.right(dres, false), l);
-    }
-  },
-
-  verify: function (m, score) {
-    if (m.p[0] === WO || m.p[1] === WO) {
-      return "cannot override score in walkover'd match";
-    }
-    if (score[0] === score[1]) {
-      return "cannot draw a duel";
-    }
-    return null;
-  },
-
-  early: function () {
-    var gf1 = this.matches[this.matches.length - 2];
-    return this.isLong && this.last === LB && gf1.m && gf1.m[0] > gf1.m[1];
-  },
-
-  initResult: $.constant({ against: 0}),
-  stats: function (resAry) {
-    return this.matches.reduce(
-      updateBasedOnMatch.bind(this, this.isLong, this.last, this.p),
-      resAry
-    ).sort(Base.compareRes);
-  },
-
-  // exposed helpers
-  down: down,
-  right: right,
-  roundName: roundNames
+  // manually progress WO markers
+  var scorer = woScore.bind(this);
+  this.findMatches({s: WB, r:1}).forEach(scorer);
+  if (this.last > WB) {
+    this.findMatches({s: LB, r:1}).forEach(scorer);
+  }
 });
 
 //------------------------------------------------------------------
 // Static helpers and constants
 //------------------------------------------------------------------
 
-Object.keys(consts).forEach(function (key) {
-  Object.defineProperty(Duel, key, {
-    enumerable: true,
-    value: consts[key]
-  });
-});
+Duel.configure({
+  defaults: function (np, opts) {
+    opts.isLong = !opts.short; // TODO: this is a bit confusing
+    opts.last = opts.last || WB;
+    opts.limit = opts.limit || 0;
+    return opts;
+  },
 
-Duel.invalid = function (np, last, opts) {
-  opts = opts || {};
-  if (!Base.isInteger(np) || np < 4 || np > 1024) {
-    return "duel tournament size must be an integer n, s.t. 4 <= n <= 1024";
+  invalid: function (np, opts) {
+    if (np < 4 || np > 1024) {
+      return "numPlayers must be >= 4 and <= 1024";
+    }
+    if ([WB, LB].indexOf(opts.last) < 0) {
+      return "last elimination bracket must be either WB or LB";
+    }
+    if (opts.limit) {
+      return "limits not yet supported";
+    }
+    return null;
   }
-  if ([WB, LB].indexOf(last) < 0) {
-    return "last Duel elimination bracket must be t.WB or t.LB";
-  }
-  if (opts.limit) { // TODO: possible to do I guess..
-    return "Duel limits are not yet supported - Duel must be the last stage";
-  }
-  return null;
-};
+});
 
 Duel.idString = function (id) {
   var rep = "";
@@ -371,5 +306,71 @@ Duel.idString = function (id) {
   // else assume no bracket identifier wanted
   return (rep + "R" + id.r + " M" + id.m);
 };
+
+var consts = {WB: WB, LB: LB, WO: WO};
+Object.keys(consts).forEach(function (key) {
+  Object.defineProperty(Duel, key, {
+    enumerable: true,
+    value: consts[key]
+  });
+});
+
+//------------------------------------------------------------------
+// Expected methods
+//------------------------------------------------------------------
+
+Duel.prototype.progress = function (m) {
+  // helper to insert player adv into [id, pos] from progression fns
+  var inserter = playerInsert.bind(this);
+
+  // 1. calculate winner and loser for progression
+  var w = (m.m[0] > m.m[1]) ? m.p[0] : m.p[1]
+    , l = (m.m[0] > m.m[1]) ? m.p[1] : m.p[0];
+  // an underdog win may force a double match where brackets join
+  // currently, this only happens in double elimination in GF1 and isLong
+  var underdogWon = (w === m.p[1]);
+
+  // 2. move winner right
+  // NB: non-WO match `id` cannot `right` into a WOd match => discard res
+  inserter(this.right(m.id, underdogWon), w);
+
+  // 3. move loser down if applicable
+  var dres = inserter(this.down(m.id, underdogWon), l);
+
+  // 4. check if loser must be forwarded from existing WO in LBR1/LBR2
+  // NB: underdogWon is never relevant as LBR2 is always before GF1 when p >= 2
+  if (dres) {
+    inserter(this.right(dres, false), l);
+  }
+};
+
+Duel.prototype.verify = function (m, score) {
+  if (m.p[0] === WO || m.p[1] === WO) {
+    return "cannot override score in walkover'd match";
+  }
+  if (score[0] === score[1]) {
+    return "cannot draw a duel";
+  }
+  return null;
+};
+
+Duel.prototype.early = function () {
+  var gf1 = this.matches[this.matches.length - 2];
+  return this.isLong && this.last === LB && gf1.m && gf1.m[0] > gf1.m[1];
+};
+
+Duel.prototype.initResult = $.constant({ against: 0});
+
+Duel.prototype.stats = function (resAry) {
+  return this.matches.reduce(
+    updateBasedOnMatch.bind(this, this.isLong, this.last, this.p),
+    resAry
+  ).sort(Base.compareRes);
+};
+
+// exposed helpers - extras
+Duel.prototype.down = down;
+Duel.prototype.right = right;
+Duel.prototype.roundName = require('./duel_names')(consts);
 
 module.exports = Duel;
