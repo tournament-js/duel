@@ -222,7 +222,7 @@ var updateBasedOnMatch = function (isLong, last, p, res, g) {
 
   // handle players that have reached the match
   g.p.filter($.gt(0)).forEach(function (s) {
-    res[s-1].pos = canPosition ?
+    Base.resultEntry(res, s).pos = canPosition ?
       placement(last, p, maxr): // estimate from minimally achieved last round
       2 + Number(isBf || isLongSemi)*2; // finals are 2 or 4 initially
   });
@@ -230,21 +230,22 @@ var updateBasedOnMatch = function (isLong, last, p, res, g) {
   // done if WO (player found in next) or unplayed
   if (g.p.indexOf(WO) < 0 && g.m) {
     // when we have scores, we have a winner and a loser
-    var p0 = g.p[0] - 1
-      , p1 = g.p[1] - 1
+    var p0 = Base.resultEntry(res, g.p[0])
+      , p1 = Base.resultEntry(res, g.p[1])
       , w = (g.m[0] > g.m[1]) ? p0 : p1;
 
     // inc wins
-    res[w].wins += 1;
-    res[p0].for += g.m[0];
-    res[p1].for += g.m[1];
-    res[p0].against += g.m[1];
-    res[p1].against += g.m[0];
+    w.wins += 1;
+    p0.for += g.m[0];
+    p1.for += g.m[1];
+    p0.against += g.m[1];
+    p1.against += g.m[0];
 
     // bump winners of finals
-    var isConclusiveLbGf = isLbGfs && (g.id.r === 2*p || !isLong || p0 === w);
+    var underdogWon = p0.seed === w.seed;
+    var isConclusiveLbGf = isLbGfs && (g.id.r === 2*p || !isLong || underdogWon);
     if (isBf || isWbGf || isConclusiveLbGf) {
-      res[w].pos -= 1;
+      w.pos -= 1;
     }
   }
   return res;
