@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "interlude": "~1.0.2",
-    "tournament": "~0.18.0"
+    "tournament": "~0.19.0"
   },
   "devDependencies": {
     "tap": "~0.4.4"
