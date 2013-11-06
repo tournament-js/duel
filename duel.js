@@ -175,12 +175,12 @@ var playerInsert = function (progress, adv) {
 };
 
 // helper to initially score matches with walkovers correctly
-var woScore = function (m) {
+var woScore = function (progressFn, m) {
   var idx = m.p.indexOf(WO);
   if (idx >= 0) {
     // set scores manually to avoid the `verify` walkover scoring restriction
     m.m = (idx === 0) ? [0, 1] : [1, 0];
-    this.progress(m);
+    progressFn(m);
   }
 };
 
@@ -211,46 +211,6 @@ var placement = function (last, p, maxr) {
   return (last === LB) ? lbPos(p, maxr) : wbPos(p, maxr);
 };
 
-// main reduce function for results - assumes instance context for `down`
-var updateBasedOnMatch = function (isLong, last, p, res, g) {
-  var isBf = isLong && last === WB && g.id.s === LB
-    , isWbGf = last === WB && g.id.s === WB && g.id.r === p
-    , isLbGfs = last === LB && g.id.s === LB && g.id.r >= 2*p - 1
-    , isLongSemi = isLong && last === WB && g.id.s === WB && g.id.r === p-1
-    , canPosition = !isBf && !isWbGf && !isLbGfs && !isLongSemi
-    , maxr = (g.id.s < last) ? this.down(g.id, false)[0].r : g.id.r;
-
-  // handle players that have reached the match
-  g.p.filter($.gt(0)).forEach(function (s) {
-    Base.resultEntry(res, s).pos = canPosition ?
-      placement(last, p, maxr): // estimate from minimally achieved last round
-      2 + Number(isBf || isLongSemi)*2; // finals are 2 or 4 initially
-  });
-
-  // done if WO (player found in next) or unplayed
-  if (g.p.indexOf(WO) < 0 && g.m) {
-    // when we have scores, we have a winner and a loser
-    var p0 = Base.resultEntry(res, g.p[0])
-      , p1 = Base.resultEntry(res, g.p[1])
-      , w = (g.m[0] > g.m[1]) ? p0 : p1;
-
-    // inc wins
-    w.wins += 1;
-    p0.for += g.m[0];
-    p1.for += g.m[1];
-    p0.against += g.m[1];
-    p1.against += g.m[0];
-
-    // bump winners of finals
-    var underdogWon = p0.seed === w.seed;
-    var isConclusiveLbGf = isLbGfs && (g.id.r === 2*p || !isLong || underdogWon);
-    if (isBf || isWbGf || isConclusiveLbGf) {
-      w.pos -= 1;
-    }
-  }
-  return res;
-};
-
 //------------------------------------------------------------------
 // Interface
 //------------------------------------------------------------------
@@ -263,7 +223,7 @@ var Duel = Base.sub('Duel', function (opts, initParent) {
   initParent(elimination(this.numPlayers, this.p, this.last, this.isLong));
 
   // manually progress WO markers
-  var scorer = woScore.bind(this);
+  var scorer = woScore.bind(null, this._progress.bind(this));
   this.findMatches({s: WB, r:1}).forEach(scorer);
   if (this.last > WB) {
     this.findMatches({s: LB, r:1}).forEach(scorer);
@@ -320,7 +280,7 @@ Object.keys(consts).forEach(function (key) {
 // Expected methods
 //------------------------------------------------------------------
 
-Duel.prototype.progress = function (m) {
+Duel.prototype._progress = function (m) {
   // helper to insert player adv into [id, pos] from progression fns
   var inserter = playerInsert.bind(this);
 
@@ -345,7 +305,7 @@ Duel.prototype.progress = function (m) {
   }
 };
 
-Duel.prototype.verify = function (m, score) {
+Duel.prototype._verify = function (m, score) {
   if (m.p[0] === WO || m.p[1] === WO) {
     return "cannot override score in walkover'd match";
   }
@@ -355,18 +315,52 @@ Duel.prototype.verify = function (m, score) {
   return null;
 };
 
-Duel.prototype.early = function () {
+Duel.prototype._early = function () {
   var gf1 = this.matches[this.matches.length - 2];
   return this.isLong && this.last === LB && gf1.m && gf1.m[0] > gf1.m[1];
 };
 
-Duel.prototype.initResult = $.constant({ against: 0});
+Duel.prototype._initResult = $.constant({ against: 0});
+Duel.prototype._stats = function (res, g) {
+  var isLong = this.isLong
+    , last  = this.last
+    , p = this.p
+    , isBf = isLong && last === WB && g.id.s === LB
+    , isWbGf = last === WB && g.id.s === WB && g.id.r === p
+    , isLbGfs = last === LB && g.id.s === LB && g.id.r >= 2*p - 1
+    , isLongSemi = isLong && last === WB && g.id.s === WB && g.id.r === p-1
+    , canPosition = !isBf && !isWbGf && !isLbGfs && !isLongSemi
+    , maxr = (g.id.s < last) ? this.down(g.id, false)[0].r : g.id.r;
 
-Duel.prototype.stats = function (resAry) {
-  return this.matches.reduce(
-    updateBasedOnMatch.bind(this, this.isLong, this.last, this.p),
-    resAry
-  ).sort(Base.compareRes);
+  // position players based on reaching the match
+  g.p.filter($.gt(0)).forEach(function (s) {
+    Base.resultEntry(res, s).pos = canPosition ?
+      placement(last, p, maxr): // estimate from minimally achieved last round
+      2 + Number(isBf || isLongSemi)*2; // finals are 2 or 4 initially
+  });
+
+  // compute stats for played matches - ignore WOs (then p found in next)
+  if (g.p.indexOf(WO) < 0 && g.m) {
+    // when we have scores, we have a winner and a loser
+    var p0 = Base.resultEntry(res, g.p[0])
+      , p1 = Base.resultEntry(res, g.p[1])
+      , w = (g.m[0] > g.m[1]) ? p0 : p1;
+
+    // inc wins
+    w.wins += 1;
+    p0.for += g.m[0];
+    p1.for += g.m[1];
+    p0.against += g.m[1];
+    p1.against += g.m[0];
+
+    // bump winners of finals
+    var underdogWon = p0.seed === w.seed;
+    var isConclusiveLbGf = isLbGfs && (g.id.r === 2*p || !isLong || underdogWon);
+    if (isBf || isWbGf || isConclusiveLbGf) {
+      w.pos -= 1;
+    }
+  }
+  return res;
 };
 
 // exposed helpers - extras
