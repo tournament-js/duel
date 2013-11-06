@@ -1,4 +1,4 @@
-0.4.2 / 2013-11-06
+0.4.3 / 2013-11-06
 ==================
   * Interface with tournament@0.20.0 for cleaner results implementation
 
