@@ -1,3 +1,7 @@
+0.4.2 / 2013-11-06
+==================
+  * Interface with tournament@0.20.0 for cleaner results implementation
+
 0.4.1 / 2013-11-02
 ==================
   * Interface with tournament@0.19.0 for multi stage support
