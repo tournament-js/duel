@@ -178,7 +178,7 @@ var playerInsert = function (progress, adv) {
 var woScore = function (progressFn, m) {
   var idx = m.p.indexOf(WO);
   if (idx >= 0) {
-    // set scores manually to avoid the `verify` walkover scoring restriction
+    // set scores manually to avoid the `_verify` walkover scoring restriction
     m.m = (idx === 0) ? [0, 1] : [1, 0];
     progressFn(m);
   }
@@ -320,7 +320,6 @@ Duel.prototype._early = function () {
   return this.isLong && this.last === LB && gf1.m && gf1.m[0] > gf1.m[1];
 };
 
-Duel.prototype._initResult = $.constant({ against: 0});
 Duel.prototype._stats = function (res, g) {
   var isLong = this.isLong
     , last  = this.last

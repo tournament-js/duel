@@ -1,3 +1,7 @@
+0.4.4 / 2013-11-13
+==================
+  * Interface with tournament@0.20.2 for default `results[i].against`
+
 0.4.3 / 2013-11-06
 ==================
   * Interface with tournament@0.20.0 for cleaner results implementation
