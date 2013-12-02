@@ -1,8 +1,7 @@
 # Duel elimination tournaments
 [![Build Status](https://secure.travis-ci.org/clux/duel.png)](http://travis-ci.org/clux/duel)
 [![Dependency Status](https://david-dm.org/clux/duel.png)](https://david-dm.org/clux/duel)
-
-    Stability: 3 - Stable
+[![stable](http://hughsk.github.io/stability-badges/dist/stable.svg)](http://nodejs.org/api/documentation.html#documentation_stability_index)
 
 ## Overview
 Duel elimination tournaments consist of two players / teams per match. after each match the winner is advanced to the right in the bracket, and if loser bracket is in use, the loser is put in the loser bracket.
