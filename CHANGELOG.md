@@ -1,3 +1,7 @@
+0.5.0 / 2013-12-24
+==================
+  * Updated `tournament` to 0.21.0 so that `Duel` is an `EventEmitter`
+
 0.4.4 / 2013-11-13
 ==================
   * Interface with tournament@0.20.2 for default `results[i].against`
