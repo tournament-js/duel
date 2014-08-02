@@ -90,17 +90,6 @@ The `underdogWon` bool is simply whether the winner is the player at the bottom 
 
 The `index` returned is the index in the player array the winner (if `right`) or loser (if `down`) will end up in. This is mostly beneficial internally. If you end up using this, you'd likely want to look at `duel.upcoming(playerId)`.
 
-### duel.roundName(id) :: String
-Find the name of the round that `id` is found in. The `id` must minimally contain `{ s: bracket, r: round }`.
-
-```js
-var d = new Duel(4, WB);
-d.roundName(d.matches[3].id);
-'Bronze Final';
-d.roundName(d.matches[2].id);h
-'Grand Final'
-```
-
 ## Caveats
 ### End progression
 Towards the end of a duel tournament, players may move in seemingly strange ways. These are:

@@ -1,3 +1,8 @@
+0.5.1 / 2014-07-02
+==================
+  * `roundName` remove and is now a mixin via the `duel-names` module
+  * `duel-names` can be mixed in via `Duel.attachNames`
+
 0.5.0 / 2013-12-24
 ==================
   * Updated `tournament` to 0.21.0 so that `Duel` is an `EventEmitter`
