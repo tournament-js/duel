@@ -50,24 +50,18 @@ var roundNameSingle = function (T, last, p, br, r) {
   if (br === T.LB) {
     return seNames[0]();
   }
-  return ((r > p - 3) ? seNames[p - r + 1] : seNames[4])(Math.pow(2, p - r + 1));
+  return seNames[(r + 3 > p) ? p - r + 1 : 4](Math.pow(2, p - r + 1));
 };
 
 var roundNameDouble = function (T, last, p, br, r) {
   if (br === T.WB) {
-    return ((r > p - 3) ? wbNames[p - r] : wbNames[3])(Math.pow(2, p - r + 1));
+    return wbNames[(r + 3 > p) ? p - r : 3](Math.pow(2, p - r + 1));
   }
-  // else T.LB
-  if (r >= 2*p - 3) {
-    return lbNames[2*p - r](); // grand final rounds or LB final
-  }
+  // gf rounds or lb final first, else treat like (strong?) round of X (idx 4 or 5)
+  var lbIdx = (r >= 2*p - 3) ? 2*p - r : (5 - r%2);
 
-  // Round of %d - where %d is num players left in LB
-  if (r % 2 === 1) {
-    return lbNames[4](Math.pow(2, p-(r+1)/2));
-  }
-  // Mixed round of %d (always the same as the round before because of feeding)
-  return lbNames[5](Math.pow(2, p - r/2));
+  // round number 2n always has same number as 2n-1 because of feeding
+  return lbNames[lbIdx](Math.pow(2, p -  Math.floor((r+1)/2)));
 };
 
 
