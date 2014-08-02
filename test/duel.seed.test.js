@@ -1,11 +1,9 @@
-var tap = require('tap')
-  , test = tap.test
-  , $ = require('interlude')
-  , Duel = require('../')
+var $ = require('interlude')
+  , Duel = require(process.env.DUEL_COV ? '../duel-cov.js' : '../')
   , rep = Duel.idString;
 
 
-test("seeding assumption", function (t) {
+exports.seedingAssumptiom = function (t) {
   var d = new Duel(512, { last: Duel.WB, short:true }) // bf irrelevant
     , gs = d.matches;
 
@@ -35,5 +33,5 @@ test("seeding assumption", function (t) {
     verifyRound(r, inRound);
   });
 
-  t.end();
-});
+  t.done();
+};

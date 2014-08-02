@@ -1,13 +1,11 @@
-var tap = require('tap')
-  , test = tap.test
-  , $ = require('interlude')
-  , Duel = require('../');
+var $ = require('interlude')
+  , Duel = require(process.env.DUEL_COV ? '../duel-cov.js' : '../');
 
 const WB = Duel.WB;
 const LB = Duel.LB;
 const WO = Duel.WO;
 
-test("duel LB underdog + scorable", function (t) {
+exports.losersUnderdog = function (t) {
   // long LB underdog lost
   var duel = new Duel(16, { last: LB, short: false });
   duel.matches.slice(0, -2).map(function (m, i) {
@@ -49,10 +47,10 @@ test("duel LB underdog + scorable", function (t) {
   });
   t.ok(duel.isDone(), "duel tournament should be done now");
 
-  t.end();
-});
+  t.done();
+};
 
-test("duel 16 WB serialize", function (t) {
+exports.serializeSingle = function (t) {
   var duel = new Duel(16)
     , gs = duel.matches;
 
@@ -74,11 +72,11 @@ test("duel 16 WB serialize", function (t) {
   t.ok(res, "can get results");
   t.ok($.isSubsetOf($.range(4), $.pluck('pos', res.slice(0, 4))), "top4.pos in1..4");
 
-  t.end();
-});
+  t.done();
+};
 
 // same test wo bronze final
-test("duel 16 WB short serialize", function (t) {
+exports.serializeSingleShort = function (t) {
   var duel = new Duel(16, { short: true })
     , gs = duel.matches;
 
@@ -101,11 +99,11 @@ test("duel 16 WB short serialize", function (t) {
   // cant determine 3-vs-4th in this case!
   t.ok($.isSubsetOf([1,2,3,3], $.pluck('pos', res.slice(0, 4))), "top4 pos=1,2,3,4");
 
-  t.end();
-});
+  t.done();
+};
 
 // same tests with LB
-test("duel 16 LB serialize", function (t) {
+exports.serializeDouble = function (t) {
   var duel = new Duel(16, { last: LB })
     , gs = duel.matches;
 
@@ -131,10 +129,10 @@ test("duel 16 LB serialize", function (t) {
   t.ok(res, "can get results");
   t.ok($.isSubsetOf($.range(4), $.pluck('pos', res.slice(0, 4))), "top4 pos 1..4");
 
-  t.end();
-});
+  t.done();
+};
 
-test("duel 16 LB short serialize", function (t) {
+exports.serializeLbShort = function (t) {
   var duel = new Duel(16, { last: LB, short: true })
     , gs = duel.matches;
 
@@ -159,10 +157,10 @@ test("duel 16 LB short serialize", function (t) {
   var res = duel2.results();
   t.ok(res, "can get results");
   t.deepEqual($.pluck('pos', res.slice(0, 4)), $.range(4), "top 4 pos in 1..4");
-  t.end();
-});
+  t.done();
+};
 
-test("duel WB general", function (t) {
+exports.singleGeneral = function (t) {
   var duel = new Duel(32)
     , gs = duel.matches
     , p = duel.p;
@@ -188,10 +186,10 @@ test("duel WB general", function (t) {
   t.ok(res, "results produced");
   t.equal(res.length, 32, "all players included in results");
 
-  t.end();
-});
+  t.done();
+};
 
-test("duel LB general", function (t) {
+exports.doubleGeneral = function (t) {
   var duel = new Duel(32, { last: LB })
     , gs = duel.matches
     , p = duel.p;
@@ -219,10 +217,10 @@ test("duel LB general", function (t) {
   t.ok(res, "results produced");
   t.equal(res.length, 32, "all players included in results");
 
-  t.end();
-});
+  t.done();
+};
 
-test("duel simple WB", function (t) {
+exports.simgleSingleRes = function (t) {
   // try scoring everything in order
   var duel = new Duel(5)
     , gs = duel.matches;
@@ -279,10 +277,10 @@ test("duel simple WB", function (t) {
   var sorted = $.pluck('seed', res);
   t.deepEqual(sorted, $.range(5), "results sorted after position");
 
-  t.end();
-});
+  t.done();
+};
 
-test("duel simple but big LB", function (t) {
+exports.bigDouble = function (t) {
   // try scoring everything in order
   var duel = new Duel(128, { last: LB })
     , gs = duel.matches
@@ -311,12 +309,12 @@ test("duel simple but big LB", function (t) {
   var sorted = $.pluck('seed', res.slice(0, 4));
   t.deepEqual(sorted, $.range(4), "results sorted after position");
 
-  t.end();
-});
+  t.done();
+};
 
 
 
-test("duel detailed LB", function (t) {
+exports.detailedDouble = function (t) {
   // try scoring everything in order
   var duel = new Duel(5, { last: LB })
     , gs = duel.matches;
@@ -373,11 +371,11 @@ test("duel detailed LB", function (t) {
   var sorted = $.pluck('seed', res);
   t.deepEqual(sorted, [2, 3, 4, 5, 1], "results sorted after position");
 
-  t.end();
-});
+  t.done();
+};
 
 
-test("upcoming/scorable 8 LB", function (t) {
+exports.doubleHelpers = function (t) {
   var d = new Duel(8, { last: LB }) // NO WO markers in this (easy case)
     , ms = d.matches;
 
@@ -429,5 +427,5 @@ test("upcoming/scorable 8 LB", function (t) {
     }
   });
 
-  t.end();
-});
+  t.done();
+};

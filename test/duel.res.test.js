@@ -1,13 +1,11 @@
-var tap = require('tap')
-  , test = tap.test
-  , $ = require('interlude')
-  , Duel = require('../')
+var $ = require('interlude')
+  , Duel = require(process.env.DUEL_COV ? '../duel-cov.js' : '../')
   , rep = Duel.idString;
 
 const WB = Duel.WB;
 const LB = Duel.LB;
 
-test("score affects only winner", function (t) {
+exports.scoreAffectsOnlyWinner = function (t) {
   var n = 16
     , d = new Duel(n, { last: LB })
     , gs = d.matches;
@@ -47,11 +45,11 @@ test("score affects only winner", function (t) {
     res = newRes;
   });
 
-  t.end();
-});
+  t.done();
+};
 
 
-test("duel results detailed WB 16", function (t) {
+exports.detailedSingleResults = function (t) {
   [false, true].forEach(function (shrt) {
     // first runthrough with bronze final, second without
     var duel = new Duel(16, { short: shrt, last: WB })
@@ -144,10 +142,10 @@ test("duel results detailed WB 16", function (t) {
       }
     });
   });
-  t.end();
-});
+  t.done();
+};
 
-test("duel results detailed LB 8", function (t) {
+exports.detailedDoubleResults = function (t) {
   [false, true].forEach(function (shrt) {
 
     // first runthrough with gf2, second without
@@ -369,5 +367,5 @@ test("duel results detailed LB 8", function (t) {
     t.ok(duel.isDone(), "duel tournament is now done");
 
   });
-  t.end();
-});
+  t.done();
+};

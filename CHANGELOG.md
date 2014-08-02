@@ -1,4 +1,8 @@
-0.5.1 / 2014-07-02
+0.5.2 / 2014-08-02
+==================
+  * Documentation and coverage release
+
+0.5.1 / 2014-08-02
 ==================
   * `roundName` remove and is now a mixin via the `duel-names` module
   * `duel-names` can be mixed in via `Duel.attachNames`
