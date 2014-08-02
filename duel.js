@@ -276,6 +276,12 @@ Object.keys(consts).forEach(function (key) {
   });
 });
 
+Duel.attachNames = function (fn) {
+  Duel.prototype.roundName = function (partialId) {
+    return fn(consts, this.last, this.p, partialId);
+  };
+};
+
 //------------------------------------------------------------------
 // Expected methods
 //------------------------------------------------------------------
@@ -365,6 +371,5 @@ Duel.prototype._stats = function (res, g) {
 // exposed helpers - extras
 Duel.prototype.down = down;
 Duel.prototype.right = right;
-Duel.prototype.roundName = require('./duel_names')(consts);
 
 module.exports = Duel;

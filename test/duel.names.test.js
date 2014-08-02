@@ -1,7 +1,10 @@
 var tap = require('tap')
   , test = tap.test
   , $ = require('interlude')
-  , Duel = require('../duel.js');
+  , Duel = require('../duel.js')
+  , duelNames = require('../duel_names.js');
+
+Duel.attachNames(duelNames);
 
 test("names 32 WB", function (t) {
   var d = new Duel(32, { last: Duel.WB }) // using bronze final
@@ -41,11 +44,11 @@ test("names 32 LB", function (t) {
   var checkLb = function (r, name) {
     var lbRoundNames = {
       1: "LB Round of 16",
-      2: "LB Strong round of 16",
+      2: "LB Strong Round of 16",
       3: "LB Round of 8",
-      4: "LB Strong round of 8",
+      4: "LB Strong Round of 8",
       5: "LB Round of 4",
-      6: "LB Strong round of 4",
+      6: "LB Strong Round of 4",
       // special rounds
       7: "LB Final",
       8: "LB Strong final",
