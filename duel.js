@@ -5,6 +5,18 @@ const WB = 1
     , LB = 2
     , WO = -1;
 
+var luid  = function (id) {
+  var rep = "";
+  if (id.s === WB) {
+    rep = "WB ";
+  }
+  else if (id.s === LB) {
+    rep = "LB ";
+  }
+  // else assume no bracket identifier wanted
+  return (rep + "R" + id.r + " M" + id.m);
+};
+
 //------------------------------------------------------------------
 // Initialization helpers
 //------------------------------------------------------------------
@@ -163,7 +175,7 @@ var playerInsert = function (progress, adv) {
       , insertM = this.findMatch(id);
 
     if (!insertM) {
-      throw new Error("tournament corrupt: " + this.rep(id) + " not found!");
+      throw new Error("tournament corrupt: " + luid(id) + " not found!");
     }
 
     insertM.p[pos] = adv;
@@ -256,17 +268,7 @@ Duel.configure({
   }
 });
 
-Duel.idString = function (id) {
-  var rep = "";
-  if (id.s === WB) {
-    rep = "WB ";
-  }
-  else if (id.s === LB) {
-    rep = "LB ";
-  }
-  // else assume no bracket identifier wanted
-  return (rep + "R" + id.r + " M" + id.m);
-};
+Duel.idString = luid;
 
 var consts = {WB: WB, LB: LB, WO: WO};
 Object.keys(consts).forEach(function (key) {
