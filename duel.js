@@ -359,8 +359,8 @@ Duel.prototype._stats = function (res, g) {
     p1.against += g.m[0];
 
     // bump winners of finals
-    var underdogWon = p0.seed === w.seed;
-    var isConclusiveLbGf = isLbGfs && (g.id.r === 2*p || !isLong || underdogWon);
+    var wbWinnerWon = p0.seed === w.seed;
+    var isConclusiveLbGf = isLbGfs && (g.id.r === 2*p || !isLong || wbWinnerWon);
     if (isBf || isWbGf || isConclusiveLbGf) {
       w.pos -= 1;
     }
