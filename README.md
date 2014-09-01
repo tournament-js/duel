@@ -30,7 +30,7 @@ var duel3 = new Duel(5);
 var duel1 = new Duel(4, { last: LB });
 ```
 
-The `Duel.invalid(numPlayers, opts)` will tell you whether the constructor arguments produce a valid tournament. Read its entry in the [tournament commonalities doc](./base.md#ensuring-constructibility) for info on this.
+The `Duel.invalid(numPlayers, opts)` will tell you whether the constructor arguments produce a valid tournament. Read its entry in the [tournament commonalities doc](https://github.com/clux/tournament/blob/master/doc/base.md#ensuring-constructibility) for info on this.
 
 The only option supported at the moment is a boolean `short`:
 
@@ -64,7 +64,7 @@ Like all tournament types, matches have an `id` object that contains three value
 ```
 
 ## Finding matches
-All the normal [Base class helper methods](./base.md#common-methods) exist on a `Duel` instance.
+All the normal [Base class helper methods](https://github.com/clux/tournament/blob/master/doc/base.md#common-methods) exist on a `Duel` instance.
 Some notable examples follow:
 
 ```js
@@ -77,7 +77,7 @@ var matchesForSeed1 = duel.matchesFor(1);
 
 ## Scoring Matches
 Call `duel.score(id, [player0Score, player1Score])` as for every match played.
-The `duel.unscorable(id, scoreArray)` will tell you whether the score is valid. Read the entry in the [tournament commonalities doc](./base.md#ensuring-scorability--consistency).
+The `duel.unscorable(id, scoreArray)` will tell you whether the score is valid. Read the entry in the [tournament commonalities doc](https://github.com/clux/tournament/blob/master/doc/base.md#ensuring-scorability--consistency).
 
 ### NB: Restrictions
 Duel tournaments does not allow ties at any stage. It's meant to _eliminate_, so you have to do your own best of 3 / overtime methods etc to determine winners in case of draws.
