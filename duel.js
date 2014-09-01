@@ -248,10 +248,11 @@ var Duel = Base.sub('Duel', function (opts, initParent) {
 
 Duel.configure({
   defaults: function (np, opts) {
-    opts.isLong = !opts.short; // TODO: this is a bit confusing
-    opts.last = opts.last || WB;
-    opts.limit = opts.limit || 0;
-    return opts;
+    var o = {}; // don't modify input
+    o.isLong = !opts.short;
+    o.last = opts.last || WB;
+    o.limit = opts.limit | 0;
+    return o;
   },
 
   invalid: function (np, opts) {
