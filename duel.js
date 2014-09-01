@@ -5,16 +5,22 @@ const WB = 1
     , LB = 2
     , WO = -1;
 
-var luid  = function (id) {
+// Id class - so each Id has an automatic string representation
+function Id(b, r, m){
+  this.s = b;
+  this.r = r;
+  this.m = m;
+}
+Id.prototype.toString = function () {
   var rep = "";
-  if (id.s === WB) {
+  if (this.s === WB) {
     rep = "WB ";
   }
-  else if (id.s === LB) {
+  else if (this.s === LB) {
     rep = "LB ";
   }
   // else assume no bracket identifier wanted
-  return (rep + "R" + id.r + " M" + id.m);
+  return (rep + "R" + this.r + " M" + this.m);
 };
 
 //------------------------------------------------------------------
@@ -34,7 +40,7 @@ var woMark = function (ps, size) {
 
 // shortcut to create a match id as duel tourneys are very specific about locations
 var gId = function (b, r, m) {
-  return {s: b, r: r, m: m};
+  return new Id(b, r, m);
 };
 
 // helpers to initialize duel tournaments
@@ -175,7 +181,7 @@ var playerInsert = function (progress, adv) {
       , insertM = this.findMatch(id);
 
     if (!insertM) {
-      throw new Error("tournament corrupt: " + luid(id) + " not found!");
+      throw new Error("tournament corrupt: " + id + " not found!");
     }
 
     insertM.p[pos] = adv;
@@ -268,8 +274,6 @@ Duel.configure({
     return null;
   }
 });
-
-Duel.idString = luid;
 
 var consts = {WB: WB, LB: LB, WO: WO};
 Object.keys(consts).forEach(function (key) {

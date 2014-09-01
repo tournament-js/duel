@@ -1,6 +1,5 @@
 var $ = require('interlude')
-  , Duel = require(process.env.DUEL_COV ? '../duel-cov.js' : '../')
-  , rep = Duel.idString;
+  , Duel = require(process.env.DUEL_COV ? '../duel-cov.js' : '../');
 
 const WB = Duel.WB;
 const LB = Duel.LB;
@@ -39,7 +38,7 @@ exports.scoreAffectsOnlyWinner = function (t) {
 
   gs.forEach(function (m) {
     // NB: scoring it underdog way to ensure even long GF can be scored
-    t.ok(d.score(m.id, [0, 5]), 'could score ' + rep(m.id));
+    t.ok(d.score(m.id, [0, 5]), 'could score ' + m.id);
     var newRes = d.results();
     verifyResDiff(res, newRes, m.p[1], 1, m.p[0]);
     res = newRes;
@@ -63,9 +62,8 @@ exports.detailedSingleResults = function (t) {
       gs.forEach(function (g) {
         if (g.id.r === r && g.id.s === br) {
           // let top seed through
-          var str = rep(g.id);
-          t.equal(duel.unscorable(g.id, [1,0]), null, "can score " + str);
-          t.ok(duel.score(g.id, g.p[0] < g.p[1] ? [2, 1] : [1, 2]), 'scored' + str);
+          t.equal(duel.unscorable(g.id, [1,0]), null, "can score " + g.id);
+          t.ok(duel.score(g.id, g.p[0] < g.p[1] ? [2, 1] : [1, 2]), 'scored' + g.id);
         }
       });
       var res = duel.results();
@@ -160,19 +158,18 @@ exports.detailedDoubleResults = function (t) {
       gs.forEach(function (g) {
         if (g.id.r === r && g.id.s === br) {
           // let top seed through
-          var str = rep(g.id);
 
           // allow rescoring of gf1 and gf2 - checked for separately
           if (!(br === LB && r >= 5)) {
             var reason = duel.unscorable(g.id, [1,0]);
-            t.equal(reason, null, "can score " + str);
+            t.equal(reason, null, "can score " + g.id);
           }
 
           var scores = (g.p[0] < g.p[1]) ? [2, 1] : [1, 2];
           if (reverse) {
             scores = scores.reverse();
           }
-          t.ok(duel.score(g.id, scores), 'scored' + str);
+          t.ok(duel.score(g.id, scores), 'scored' + g.id);
         }
       });
       var res = duel.results();

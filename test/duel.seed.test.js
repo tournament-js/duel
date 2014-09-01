@@ -1,6 +1,5 @@
 var $ = require('interlude')
-  , Duel = require(process.env.DUEL_COV ? '../duel-cov.js' : '../')
-  , rep = Duel.idString;
+  , Duel = require(process.env.DUEL_COV ? '../duel-cov.js' : '../');
 
 
 exports.seedingAssumptiom = function (t) {
@@ -21,9 +20,8 @@ exports.seedingAssumptiom = function (t) {
     // score the matches, check that it works given it's such a huge tournament
     // this massively inflates test counts, the roundly ones are the important ones
     round.forEach(function (m) {
-      var id = rep(m.id);
-      t.equal(d.unscorable(m.id, [1,0]), null, id + " scorable");
-      t.ok(d.score(m.id, m.p[0] < m.p[1] ? [1, 0] : [0, 1]), id + " scored");
+      t.equal(d.unscorable(m.id, [1,0]), null, m.id + " scorable");
+      t.ok(d.score(m.id, m.p[0] < m.p[1] ? [1, 0] : [0, 1]), m.id + " scored");
     });
   };
 
