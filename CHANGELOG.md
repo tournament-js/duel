@@ -1,3 +1,10 @@
+1.0.0 / 2014-09-01
+==================
+  * `Duel::rep` removed (was a bad undocumented feature)
+  * `Duel.idString` removed (match ids have .toString())
+  * `Duel.defaults` and Duel() no longer modifies options arguments
+  * Major bump for satisfaction
+
 0.5.2 / 2014-08-02
 ==================
   * Documentation and coverage release
