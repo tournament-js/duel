@@ -2,7 +2,7 @@
   "name": "duel",
   "description": "Duel elimination tournament",
   "author": "Eirik Albrigtsen <analsandblaster@gmail.com>",
-  "version": "0.5.2",
+  "version": "1.0.0",
   "stability": "stable",
   "repository": {
     "type": "git",
