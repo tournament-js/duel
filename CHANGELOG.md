@@ -4,6 +4,7 @@
   * `Duel.idString` removed (match ids have .toString())
   * `Duel.defaults` and Duel() no longer modifies options arguments
   * Major bump for satisfaction
+  * Bump tournament to 1.0.0
 
 0.5.2 / 2014-08-02
 ==================
