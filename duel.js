@@ -12,15 +12,7 @@ function Id(b, r, m){
   this.m = m;
 }
 Id.prototype.toString = function () {
-  var rep = "";
-  if (this.s === WB) {
-    rep = "WB ";
-  }
-  else if (this.s === LB) {
-    rep = "LB ";
-  }
-  // else assume no bracket identifier wanted
-  return (rep + "R" + this.r + " M" + this.m);
+  return (this.s === WB ? "WB" : "LB") + " R" + this.r + " M" + this.m;
 };
 
 //------------------------------------------------------------------
