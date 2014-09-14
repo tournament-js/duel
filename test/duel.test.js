@@ -385,9 +385,9 @@ exports.doubleHelpers = function (t) {
     // upcoming
     $.range(Math.pow(2, 3-r)).forEach(function (n) {
       var up = d.upcoming(n);
-      t.ok(up, "upcoming match exists for round " + r + " advancer");
-      t.equal(up.r, r, "upcoming match for this round is in round " + r);
-      t.equal(up.s, WB, "upcoming match for round " + r + " is in WB");
+      t.ok(up.length, "upcoming match exists for round " + r + " advancer");
+      t.equal(up[0].id.r, r, "upcoming match for this round is in round " + r);
+      t.equal(up[0].id.s, WB, "upcoming match for round " + r + " is in WB");
     });
 
     // score
@@ -398,7 +398,7 @@ exports.doubleHelpers = function (t) {
 
     if (r === 3) {
       var up = d.upcoming(1);
-      t.equal(up.s, LB, "upcoming match for WB final winner is in LB");
+      t.equal(up[0].id.s, LB, "upcoming match for WB final winner is in LB");
     }
   });
 
@@ -410,9 +410,9 @@ exports.doubleHelpers = function (t) {
     d.players({s: LB, r:r}).forEach(function (n) {
       t.ok(n > WO, "player found was filled in and not a WO marker");
       var up = d.upcoming(n);
-      t.ok(up, "upcoming match exists for round " + r + " advancer");
-      t.equal(up.r, r, "upcoming match for this round is in round " + r);
-      t.equal(up.s, LB, "upcoming match for round " + r + " is in LB");
+      t.ok(up.length, "upcoming match exists for round " + r + " advancer");
+      t.equal(up[0].id.r, r, "upcoming match for this round is in round " + r);
+      t.equal(up[0].id.s, LB, "upcoming match for round " + r + " is in LB");
     });
 
     // check all matches in this round
@@ -423,7 +423,7 @@ exports.doubleHelpers = function (t) {
 
     if (r === 2*d.p - 1) {
       var up = d.upcoming(1);
-      t.ok(!up, "no double final, favourite won");
+      t.ok(!up.length, "no double final, favourite won");
     }
   });
 

@@ -91,7 +91,7 @@ A players progress is in a tournament is entirely determined by a sequence of bo
 
 The `underdogWon` bool is simply whether the winner is the player at the bottom in the players array, and is only needed for accurate double grand final cases for double elimination.
 
-The `index` returned is the index in the player array the winner (if `right`) or loser (if `down`) will end up in. This is mostly beneficial internally. If you end up using this, you'd likely want to look at `duel.upcoming(playerId)`.
+The `index` returned is the index in the player array the winner (if `right`) or loser (if `down`) will end up in. This is mostly beneficial internally. If you think about using this, consider looking at `duel.upcoming(playerId)` first.
 
 ## Caveats
 ### End progression
