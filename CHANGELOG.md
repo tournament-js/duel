@@ -1,3 +1,8 @@
+2.0.1 / 2014-09-30
+==================
+  * Bump tournament to 2.0.1
+  * Bump interlude to 1.1.0
+
 2.0.0 / 2014-09-14
 ==================
   * **BREAKING** Bump tournament to 2.0.0 for more sensible `Tournament::upcoming`
