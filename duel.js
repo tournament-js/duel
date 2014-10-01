@@ -320,6 +320,9 @@ Duel.prototype._verify = function (m, score) {
   if (score[0] === score[1]) {
     return "cannot draw a duel";
   }
+  // TODO: maybe check that the match in this.right[0] is unplayed
+  // TODO: maybe check that the match in this.down[0] is unplayed
+
   return null;
 };
 
