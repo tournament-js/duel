@@ -86,12 +86,12 @@ Duel tournaments does not allow ties at any stage. It's meant to _eliminate_, so
 ### Progression Trackers
 A players progress is in a tournament is entirely determined by a sequence of booleans for wins/losses. If you have a match id and want to know where a player will gets sent, either to the right in the bracket or downwards to the losers bracket, pass the id to the following helpers methods:
 
-### duel.right(id [, underdogWon]) :: [rightId, index]
-### duel.down(id [, underdogWon]) :: [downId, index]
+### duel.right(id) :: [rightId, index]
+### duel.down(id) :: [downId, index]
 
-The `underdogWon` bool is simply whether the winner is the player at the bottom in the players array, and is only needed for accurate double grand final cases for double elimination.
+The `index` returned is the index in the player array the winner (if `right`) or loser (if `down`) will end up in. This is mostly beneficial internally. If you think about using this, consider looking at `duel.upcoming(playerId)`.
 
-The `index` returned is the index in the player array the winner (if `right`) or loser (if `down`) will end up in. This is mostly beneficial internally. If you think about using this, consider looking at `duel.upcoming(playerId)` first.
+NB: These raw helpers do not consider the special case of the sometimes unplayed grand final game two in double elimination (but upcoming does).
 
 ## Caveats
 ### End progression

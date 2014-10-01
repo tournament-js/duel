@@ -91,8 +91,8 @@ var elimination = function (size, p, last, isLong) {
 // progression helpers - assume instance context
 //------------------------------------------------------------------
 
-// find what match and position a winner moves "right" to in the current bracket
-var right = function (id, underdogWon) {
+// find the match and position a winner should move "right" to in the current bracket
+var right = function (id) {
   var b = id.s
     , r = id.r
     , g = id.m
@@ -102,7 +102,7 @@ var right = function (id, underdogWon) {
   var isFinalSe = (this.last === WB && r === p)
     , isFinalDe = (this.last === LB && b === LB && r === 2*p)
     , isBronze = (this.last === WB && b === LB)
-    , isShortLbGf = (b === LB && r === 2*p - 1 && (!this.isLong || !underdogWon));
+    , isShortLbGf = (b === LB && r === 2*p - 1 && !this.isLong);
 
   if (isFinalSe || isFinalDe || isBronze || isShortLbGf) {
     return null;
@@ -136,8 +136,8 @@ var right = function (id, underdogWon) {
   return [gId(b, r + 1, ghalf), pos];
 };
 
-// find what match and position a loser moves "down" to in the current bracket
-var down = function (id, underdogWon) {
+// find the match and position a loser should move "down" to in the current bracket
+var down = function (id) {
   var b = id.s
     , r = id.r
     , g = id.m
@@ -149,7 +149,7 @@ var down = function (id, underdogWon) {
       // if bronze final, move loser to "LBR1" at mirror pos of WBGF
       return [gId(LB, 1, 1), (g + 1) % 2];
     }
-    if (b === LB && r === 2*p - 1 && this.isLong && underdogWon) {
+    if (b === LB && r === 2*p - 1 && this.isLong) {
       // if double final, then loser moves to the bottom
       return [gId(LB, 2 * p, 1), 1];
     }
@@ -292,21 +292,24 @@ Duel.prototype._progress = function (m) {
   // 1. calculate winner and loser for progression
   var w = (m.m[0] > m.m[1]) ? m.p[0] : m.p[1]
     , l = (m.m[0] > m.m[1]) ? m.p[1] : m.p[0];
-  // an underdog win may force a double match where brackets join
-  // currently, this only happens in double elimination in GF1 and isLong
-  var underdogWon = (w === m.p[1]);
+  // in double elimination, the double final should be propagated to with zeroes
+  // unless we actually need it (underdog won gfg1 forcing the gfg2 decider)
+  var isShortLbGf = (m.id.s === LB && m.id.r === 2*this.p - 1 && this.isLong);
+  if (isShortLbGf && w === m.p[0]) {
+    w = l = 0;
+  }
 
   // 2. move winner right
   // NB: non-WO match `id` cannot `right` into a WOd match => discard res
-  inserter(this.right(m.id, underdogWon), w);
+  inserter(this.right(m.id), w);
 
   // 3. move loser down if applicable
-  var dres = inserter(this.down(m.id, underdogWon), l);
+  var dres = inserter(this.down(m.id), l);
 
   // 4. check if loser must be forwarded from existing WO in LBR1/LBR2
-  // NB: underdogWon is never relevant as LBR2 is always before GF1 when p >= 2
+  // NB: propagateZeroes is never relevant as LBR2 is always before GF1 when p >= 2
   if (dres) {
-    inserter(this.right(dres, false), l);
+    inserter(this.right(dres), l);
   }
 };
 
