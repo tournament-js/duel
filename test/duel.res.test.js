@@ -290,7 +290,6 @@ exports.detailedDoubleResults = function (t) {
 
 
     // all code below consider whether or not we are in short mode
-    var gf2 = $.last(gs); // NB: only last if !shrt, so test for it further down!
     scoreRound(LB, 5).forEach(function (r) {
       if (r.seed === 1) {
         t.equal(r.pos, 1, "gf1 winner (wb final winner) finalizes a 1st");
@@ -300,6 +299,7 @@ exports.detailedDoubleResults = function (t) {
       }
     });
     if (!shrt) {
+      var gf2 = $.last(gs); // NB: only last if !shrt
       // last is only gf2 in long mode, as gf2 wont exist
       t.deepEqual(gf2.p, [0, 0], "no players should have been advanced");
     }
@@ -308,7 +308,9 @@ exports.detailedDoubleResults = function (t) {
 
 
     // rescore GF1
-    t.ok(duel.unscorable({s:LB, r:5, m:1}, [1,0]), "cannot rewrite GF1");
+    var gf1 = duel.findMatch({s:LB, r:5, m:1});
+    var gf2 = !shrt ? $.last(gs) : null;
+    t.equal(duel.unscorable(gf1.id, [1,0]), null, "can rewrite gf1 still");
     // do it anyway - score in reverse order of seeds!
     scoreRound(LB, 5, true).forEach(function (r) {
       if (r.seed === 1) {
@@ -324,7 +326,7 @@ exports.detailedDoubleResults = function (t) {
       }
     });
     if (!shrt) {
-      t.deepEqual($.last(gs).p, [2, 1], "both advanced in underdogs favor now");
+      t.deepEqual(gf2.p, [2, 1], "both advanced in underdogs favor now");
     }
     // short mode done, but  otherwise the second map is scored
     t.equal(duel.isDone(), shrt, "duel tournament is now done only if short");
@@ -350,8 +352,9 @@ exports.detailedDoubleResults = function (t) {
     t.ok(duel.isDone(), "duel tournament is now done");
 
     // rescore GF2
-    t.ok(duel.unscorable(gf2.id, [1,0]), "cannot rescore gf2");
-    t.equal(duel.unscorable(gf2.id, [1,0], true), null, "unless allow rewrite");
+    t.equal(duel.unscorable(gf2.id, [1,0]), null, "gf2 rescore");
+    t.equal(duel.unscorable(gf2.id, [1,0], true), null, "gf2 rescore allowPast");
+    t.equal(duel.unscorable(gf1.id, [1,0]), "LB R5 M1 cannot be re-scored", "!gf1");
     // rewrite - score in normal seed order
     scoreRound(LB, 6).forEach(function (r) {
       if (r.seed === 1) {

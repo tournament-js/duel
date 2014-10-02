@@ -41,5 +41,14 @@ exports.lbgfg1rescoring = function (t) {
   t.deepEqual(d.upcoming(1), [], "p1 is not in gfg2 as gfg1 finished early again");
   t.deepEqual(d.upcoming(2), [], "p2 is not in gfg2 as gfg1 finished early again");
 
+  // rescore s.t. gfg2 and gfg2 is odne
+  t.ok(d.score(gfg1.id, [0, 1]), 'back to gfg2');
+  t.ok(d.score(gfg2.id, [1, 0]), 'score gfg2');
+  t.equal(d.unscorable(gfg1.id, [1, 0]), "LB R3 M1 cannot be re-scored", '!gfg1');
+
+  // but verify that it would have worked if it was in short mode!
+  d.isLong = false; // bad user behaviour!
+  t.equal(d.unscorable(gfg1.id, [1, 0]), null, 'gfg1 re-score would have worked');
+
   t.done();
 };

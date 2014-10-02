@@ -1,3 +1,7 @@
+2.1.0 / 2014-10-02
+==================
+  * Implement `_safe` for better `unscorable` check for safe history rewrites
+
 2.0.2 / 2014-10-01
 ==================
   * Fixed an issue where the double elimination grand final game two could be left in a bad state when rescoring gfg1. This caused `upcoming` to return an unplayable match.

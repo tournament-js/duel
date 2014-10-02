@@ -320,11 +320,17 @@ Duel.prototype._verify = function (m, score) {
   if (score[0] === score[1]) {
     return "cannot draw a duel";
   }
-  // TODO: maybe check that the match in this.right[0] is unplayed
-  // TODO: maybe check that the match in this.down[0] is unplayed
-
   return null;
 };
+
+Duel.prototype._safe = function (m) {
+  var rres = this.right(m.id)
+    , dres = this.down(m.id)
+    , rm = rres && this.findMatch(rres[0])
+    , dm = dres && this.findMatch(dres[0]);
+  // safe to re-score iff no direct dependents are scored
+  return !(rm && rm.m) && !(dm && dm.m);
+}
 
 Duel.prototype._early = function () {
   var gf1 = this.matches[this.matches.length - 2];
