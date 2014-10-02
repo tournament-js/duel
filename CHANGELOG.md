@@ -1,7 +1,7 @@
 2.1.0 / 2014-10-02
 ==================
   * Implement `_safe` for better `unscorable` check for safe history rewrites
-  * Bump tournament to 2.2.0 for _safe`
+  * Bump tournament to 2.2.0 for `_safe`
 
 2.0.2 / 2014-10-01
 ==================
