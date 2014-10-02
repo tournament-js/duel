@@ -6,22 +6,25 @@ exports.invalid = function (t) {
   t.equal(inv(1025), "numPlayers must be >= 4 and <= 1024", "ub size limit");
   t.equal(inv(8, { last: 3 }), "last elimination bracket must be either WB or LB", "last");
   t.equal(inv(8, { limit: 4}), "limits not yet supported");
-
   t.done();
 };
-
 
 exports.roundNames = function (t) {
   var fn = function (T, last, p, id) {
     return id + ' for p=' + p + ' in ' + (last === T.LB ? 'DE' : 'SE') + ' mode';
   };
   Duel.attachNames(fn);
-
   var d = new Duel(8);
   t.equal(d.roundName(d.matches[0].id),
     "WB R1 M1 for p=3 in SE mode",
     "test injected roundName"
   );
+  t.done();
+};
 
+exports.noDraws = function (t) {
+  var d = new Duel(4);
+  t.equal(d.unscorable(d.matches[0].id, [1,1]), "cannot draw a duel", "cannot draw");
+  t.ok(!d.score(d.matches[0].id, [1,1]), "not allowed");
   t.done();
 };
