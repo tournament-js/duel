@@ -1,3 +1,7 @@
+3.0.0 / 2014-10-11
+==================
+  * Bump tournament to 3.0.0 for better serialization via `::state` and `.restore`
+
 2.1.0 / 2014-10-02
 ==================
   * Implement `_safe` for better `unscorable` check for safe history rewrites

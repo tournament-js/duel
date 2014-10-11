@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "interlude": "^1.1.0",
-    "tournament": "^2.2.0"
+    "tournament": "^3.0.0"
   },
   "devDependencies": {
     "coveralls": "^2.11.1",
