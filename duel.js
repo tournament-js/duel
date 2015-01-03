@@ -323,12 +323,18 @@ Duel.prototype._verify = function (m, score) {
 };
 
 Duel.prototype._safe = function (m) {
-  var rres = this.right(m.id)
-    , dres = this.down(m.id)
-    , rm = rres && this.findMatch(rres[0])
-    , dm = dres && this.findMatch(dres[0]);
-  // safe to re-score iff no direct dependents are scored
-  return !(rm && rm.m) && !(dm && dm.m);
+  // ensure matches [right, down, down ∘ right] are all unplayed (ignoring WO)
+  var r = this.right(m.id)
+    , d = this.down(m.id)
+    , rm = r && this.findMatch(r[0])
+    , dm = d && this.findMatch(d[0])
+    , dr = dm && this.right(dm.id) // right from down
+    , drm = dr && this.findMatch(dr[0]);
+
+  return [rm, dm, drm].every(function (next) {
+    // safe iff (match not there, or unplayed, or contains WO markers)
+    return !next || !next.m || next.p[0] === WO || next.p[1] === WO;
+  });
 }
 
 Duel.prototype._early = function () {

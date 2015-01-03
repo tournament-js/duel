@@ -1,3 +1,7 @@
+3.0.1 / 2015-01-03
+==================
+  * Fix bug in `_safe` implementation which made `unscorable` too strict when not having full access (#6 via @a5sk4s)
+
 3.0.0 / 2014-10-11
 ==================
   * Bump tournament to 3.0.0 for better serialization via `::state` and `.restore`
