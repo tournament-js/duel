@@ -3,7 +3,6 @@
 [![build status](https://secure.travis-ci.org/clux/duel.svg)](http://travis-ci.org/clux/duel)
 [![dependency status](https://david-dm.org/clux/duel.svg)](https://david-dm.org/clux/duel)
 [![coverage status](http://img.shields.io/coveralls/clux/duel.svg)](https://coveralls.io/r/clux/duel)
-[![stable](http://img.shields.io/badge/stability-stable-74C614.svg)](http://nodejs.org/api/documentation.html#documentation_stability_index)
 
 
 ## Overview

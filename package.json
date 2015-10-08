@@ -3,7 +3,6 @@
   "description": "Duel elimination tournament",
   "author": "Eirik Albrigtsen <analsandblaster@gmail.com>",
   "version": "3.0.1",
-  "stability": "stable",
   "repository": {
     "type": "git",
     "url": "clux/duel"
