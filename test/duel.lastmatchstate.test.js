@@ -1,4 +1,4 @@
-var Duel = require(process.env.DUEL_COV ? '../duel-cov.js' : '../');
+var Duel = require('../');
 
 exports.lbgfg1rescoring = function (t) {
   var d = new Duel(4, { last: Duel.LB });

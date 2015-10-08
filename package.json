@@ -16,7 +16,8 @@
   "main": "duel.js",
   "scripts": {
     "test": "nodeunit --reporter=verbose test/*.js",
-    "coverage": "jscoverage duel.js && DUEL_COV=1 nodeunit --reporter=lcov test/*.js",
+    "precoverage": "istanbul cover nodeunit test/*.test.js",
+    "coverage": "cat coverage/lcov.info && rm -rf coverage",
     "coveralls": "npm run coverage | coveralls"
   },
   "dependencies": {
@@ -25,7 +26,7 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.1",
-    "jscoverage": "^0.5.5",
+    "istanbul": "^0.3.22",
     "nodeunit": "^0.9.0"
   },
   "bugs": {

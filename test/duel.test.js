@@ -1,5 +1,5 @@
 var $ = require('interlude')
-  , Duel = require(process.env.DUEL_COV ? '../duel-cov.js' : '../');
+  , Duel = require('../');
 
 const WB = Duel.WB;
 const LB = Duel.LB;

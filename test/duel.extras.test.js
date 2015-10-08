@@ -1,4 +1,4 @@
-var Duel = require(process.env.DUEL_COV ? '../duel-cov.js' : '../');
+var Duel = require('../');
 
 exports.invalid = function (t) {
   var inv = Duel.invalid;
