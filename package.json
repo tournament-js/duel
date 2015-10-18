@@ -16,7 +16,7 @@
   "scripts": {
     "test": "nodeunit --reporter=verbose test/*.js",
     "precoverage": "istanbul cover nodeunit test/*.test.js",
-    "coverage": "cat coverage/lcov.info && rm -rf coverage",
+    "coverage": "cat coverage/lcov.info && rm -rf coverage"
   },
   "dependencies": {
     "interlude": "^1.1.0",
