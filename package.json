@@ -17,7 +17,6 @@
     "test": "nodeunit --reporter=verbose test/*.js",
     "precoverage": "istanbul cover nodeunit test/*.test.js",
     "coverage": "cat coverage/lcov.info && rm -rf coverage",
-    "coveralls": "npm run coverage | coveralls"
   },
   "dependencies": {
     "interlude": "^1.1.0",

@@ -6,18 +6,18 @@ const WB = 1
     , WO = -1;
 
 // Id class - so each Id has an automatic string representation
-function Id(b, r, m){
-  this.s = b;
-  this.r = r;
-  this.m = m;
+function Id(bracket, round, match) {
+  this.s = bracket;
+  this.r = round;
+  this.m = match;
 }
 Id.prototype.toString = function () {
-  return (this.s === WB ? "WB" : "LB") + " R" + this.r + " M" + this.m;
+  return (this.s === WB ? 'WB' : 'LB') + ' R' + this.r + ' M' + this.m;
 };
 
-//------------------------------------------------------------------
+// ------------------------------------------------------------------
 // Initialization helpers
-//------------------------------------------------------------------
+// ------------------------------------------------------------------
 
 var blank = function () {
   return [Base.NONE, Base.NONE];
@@ -87,9 +87,9 @@ var elimination = function (size, p, last, isLong) {
   return matches.sort(Base.compareMatches); // sort so they can be scored in order
 };
 
-//------------------------------------------------------------------
+// ------------------------------------------------------------------
 // progression helpers - assume instance context
-//------------------------------------------------------------------
+// ------------------------------------------------------------------
 
 // find the match and position a winner should move "right" to in the current bracket
 var right = function (id) {
@@ -173,7 +173,7 @@ var playerInsert = function (progress, adv) {
       , insertM = this.findMatch(id);
 
     if (!insertM) {
-      throw new Error("tournament corrupt: " + id + " not found!");
+      throw new Error('tournament corrupt: ' + id + ' not found!');
     }
 
     insertM.p[pos] = adv;
@@ -194,9 +194,9 @@ var woScore = function (progressFn, m) {
   }
 };
 
-//------------------------------------------------------------------
+// ------------------------------------------------------------------
 // statistics helpers
-//------------------------------------------------------------------
+// ------------------------------------------------------------------
 
 var lbPos = function (p, maxr) {
   // model position as y = 2^(k+1) + c_k2^k + 1
@@ -205,7 +205,7 @@ var lbPos = function (p, maxr) {
   var metric = 2*p - maxr;
   var k = Math.floor(metric/2) - 1; // every other doubles
   if (k < 0) {
-    throw new Error("lbPos model works for k>=0 only");
+    throw new Error('lbPos model works for k>=0 only');
   }
   var ck = Math.pow(2, k) * (metric % 2);
   return Math.pow(2, k + 1) + 1 + ck;
@@ -221,9 +221,9 @@ var placement = function (last, p, maxr) {
   return (last === LB) ? lbPos(p, maxr) : wbPos(p, maxr);
 };
 
-//------------------------------------------------------------------
+// ------------------------------------------------------------------
 // Interface
-//------------------------------------------------------------------
+// ------------------------------------------------------------------
 
 var Duel = Base.sub('Duel', function (opts, initParent) {
   this.isLong = opts.isLong; // isLong for WB => hasBF, isLong for LB => hasGf2
@@ -234,15 +234,15 @@ var Duel = Base.sub('Duel', function (opts, initParent) {
 
   // manually progress WO markers
   var scorer = woScore.bind(null, this._progress.bind(this));
-  this.findMatches({s: WB, r:1}).forEach(scorer);
+  this.findMatches({s: WB, r: 1}).forEach(scorer);
   if (this.last > WB) {
-    this.findMatches({s: LB, r:1}).forEach(scorer);
+    this.findMatches({s: LB, r: 1}).forEach(scorer);
   }
 });
 
-//------------------------------------------------------------------
+// ------------------------------------------------------------------
 // Static helpers and constants
-//------------------------------------------------------------------
+// ------------------------------------------------------------------
 
 Duel.configure({
   defaults: function (np, o) {
@@ -254,13 +254,13 @@ Duel.configure({
 
   invalid: function (np, opts) {
     if (np < 4 || np > 1024) {
-      return "numPlayers must be >= 4 and <= 1024";
+      return 'numPlayers must be >= 4 and <= 1024';
     }
     if ([WB, LB].indexOf(opts.last) < 0) {
-      return "last elimination bracket must be either WB or LB";
+      return 'last elimination bracket must be either WB or LB';
     }
     if (opts.limit) {
-      return "limits not yet supported";
+      return 'limits not yet supported';
     }
     return null;
   }
@@ -280,9 +280,9 @@ Duel.attachNames = function (fn) {
   };
 };
 
-//------------------------------------------------------------------
+// ------------------------------------------------------------------
 // Expected methods
-//------------------------------------------------------------------
+// ------------------------------------------------------------------
 
 Duel.prototype._progress = function (m) {
   // helper to insert player adv into [id, pos] from progression fns
@@ -317,13 +317,13 @@ Duel.prototype._verify = function (m, score) {
     return "cannot override score in walkover'd match";
   }
   if (score[0] === score[1]) {
-    return "cannot draw a duel";
+    return 'cannot draw a duel';
   }
   return null;
 };
 
 Duel.prototype._safe = function (m) {
-  // ensure matches [right, down, down ∘ right] are all unplayed (ignoring WO)
+  // ensure matches [right, down, down ∘ right] are all unplayed (ignoring WO)
   var r = this.right(m.id)
     , d = this.down(m.id)
     , rm = r && this.findMatch(r[0])
@@ -335,7 +335,7 @@ Duel.prototype._safe = function (m) {
     // safe iff (match not there, or unplayed, or contains WO markers)
     return !next || !next.m || next.p[0] === WO || next.p[1] === WO;
   });
-}
+};
 
 Duel.prototype._early = function () {
   var gf1 = this.matches[this.matches.length - 2];
