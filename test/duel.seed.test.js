@@ -1,9 +1,9 @@
 var $ = require('interlude')
   , Duel = require('../')
-  , test = require('bandage');
+  , test = require('tape');
 
 
-test('seedingAssumptiom', function T(t) {
+test('seedingAssumptiom', function (t) {
   var d = new Duel(512, { last: Duel.WB, short: true }) // bf irrelevant
     , gs = d.matches;
 
@@ -31,4 +31,5 @@ test('seedingAssumptiom', function T(t) {
     var inRound = Math.pow(2, 9 - i); // 512 in first round keep dividing by 2
     verifyRound(r, inRound);
   });
+  t.end();
 });

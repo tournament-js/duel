@@ -14,8 +14,8 @@
   ],
   "main": "duel.js",
   "scripts": {
-    "test": "bndg test/*.js",
-    "precoverage": "istanbul cover ./test.js",
+    "test": "tape test/*.js",
+    "precoverage": "istanbul cover tape -- test/*.test.js",
     "coverage": "cat coverage/lcov.info && rm -rf coverage"
   },
   "dependencies": {
@@ -23,9 +23,9 @@
     "tournament": "^3.0.0"
   },
   "devDependencies": {
-    "bandage": "^0.2.3",
     "coveralls": "^2.11.1",
-    "istanbul": "^0.3.22"
+    "istanbul": "^0.3.22",
+    "tape": "^4.2.1"
   },
   "bugs": {
     "url": "http://github.com/clux/duel/issues"

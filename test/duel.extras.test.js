@@ -1,15 +1,16 @@
 var Duel = require('../');
-var test = require('bandage');
+var test = require('tape');
 
-test('Duel.invalid', function T(t) {
+test('Duel.invalid', function (t) {
   var inv = Duel.invalid;
   t.equal(inv(3), 'numPlayers must be >= 4 and <= 1024', 'lb size limit');
   t.equal(inv(1025), 'numPlayers must be >= 4 and <= 1024', 'ub size limit');
   t.equal(inv(8, { last: 3 }), 'last elimination bracket must be either WB or LB', 'last');
   t.equal(inv(8, { limit: 4}), 'limits not yet supported');
+  t.end();
 });
 
-test('Duel.attachNames', function T(t) {
+test('Duel.attachNames', function (t) {
   var fn = function (Trn, last, p, id) {
     return id + ' for p=' + p + ' in ' + (last === Trn.LB ? 'DE' : 'SE') + ' mode';
   };
@@ -19,15 +20,17 @@ test('Duel.attachNames', function T(t) {
     'WB R1 M1 for p=3 in SE mode',
     'test injected roundName'
   );
+  t.end();
 });
 
-test('noDraws', function T(t) {
+test('noDraws', function (t) {
   var d = new Duel(4);
   t.equal(d.unscorable(d.matches[0].id, [1,1]), 'cannot draw a duel', 'cannot draw');
   t.ok(!d.score(d.matches[0].id, [1,1]), 'not allowed');
+  t.end();
 });
 
-test('safePropagation', function T(t) {
+test('safePropagation', function (t) {
   var d = new Duel(5, { last: 2 });
 
   // cannot score the WO matches in WBR1
@@ -59,4 +62,5 @@ test('safePropagation', function T(t) {
   // to re-score WBR2 because it's loser has fought a match PAST its
   // immediate descendant match (thus _safe checks deeper)
   t.ok(d.unscorable({ s: 1, r: 2, m: 2 }, [0, 1]), 'WBR2 unsafe now');
+  t.end();
 });

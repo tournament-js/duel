@@ -1,12 +1,12 @@
 var $ = require('interlude')
   , Duel = require('../')
-  , test = require('bandage');
+  , test = require('tape');
 
 const WB = Duel.WB;
 const LB = Duel.LB;
 const WO = Duel.WO;
 
-test('losersUnderdog', function T(t) {
+test('losersUnderdog', function (t) {
   // long LB underdog lost
   var duel = new Duel(16, { last: LB, short: false });
   duel.matches.slice(0, -2).map(function (m, i) {
@@ -47,9 +47,10 @@ test('losersUnderdog', function T(t) {
     t.ok(duel.score(m.id, [2,1]), 'can score short m' + i);
   });
   t.ok(duel.isDone(), 'duel tournament should be done now');
+  t.end();
 });
 
-test('singleGeneral', function T(t) {
+test('singleGeneral', function (t) {
   var duel = new Duel(32)
     , gs = duel.matches
     , p = duel.p;
@@ -74,9 +75,10 @@ test('singleGeneral', function T(t) {
   var res = duel.results();
   t.ok(res, 'results produced');
   t.equal(res.length, 32, 'all players included in results');
+  t.end();
 });
 
-test('doubleGeneral', function T(t) {
+test('doubleGeneral', function (t) {
   var duel = new Duel(32, { last: LB })
     , gs = duel.matches
     , p = duel.p;
@@ -103,9 +105,10 @@ test('doubleGeneral', function T(t) {
   var res = duel.results();
   t.ok(res, 'results produced');
   t.equal(res.length, 32, 'all players included in results');
+  t.end();
 });
 
-test('simgleSingleRes', function T(t) {
+test('simgleSingleRes', function (t) {
   // try scoring everything in order
   var duel = new Duel(5)
     , gs = duel.matches;
@@ -161,9 +164,10 @@ test('simgleSingleRes', function T(t) {
 
   var sorted = $.pluck('seed', res);
   t.deepEqual(sorted, $.range(5), 'results sorted after position');
+  t.end();
 });
 
-test('bigDouble', function T(t) {
+test('bigDouble', function (t) {
   // try scoring everything in order
   var duel = new Duel(128, { last: LB })
     , gs = duel.matches
@@ -191,9 +195,10 @@ test('bigDouble', function T(t) {
 
   var sorted = $.pluck('seed', res.slice(0, 4));
   t.deepEqual(sorted, $.range(4), 'results sorted after position');
+  t.end();
 });
 
-test('detailedDouble', function T(t) {
+test('detailedDouble', function (t) {
   // try scoring everything in order
   var duel = new Duel(5, { last: LB })
     , gs = duel.matches;
@@ -249,9 +254,10 @@ test('detailedDouble', function T(t) {
 
   var sorted = $.pluck('seed', res);
   t.deepEqual(sorted, [2, 3, 4, 5, 1], 'results sorted after position');
+  t.end();
 });
 
-test('doubleHelpers', function T(t) {
+test('doubleHelpers', function (t) {
   var d = new Duel(8, { last: LB }) // NO WO markers in this (easy case)
     , ms = d.matches;
 
@@ -301,4 +307,5 @@ test('doubleHelpers', function T(t) {
       t.ok(!up.length, 'no double final, favourite won');
     }
   });
+  t.end();
 });
