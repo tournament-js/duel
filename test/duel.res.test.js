@@ -1,11 +1,11 @@
 var $ = require('interlude')
   , Duel = require('../')
-  , test = require('tape');
+  , test = require('bandage');
 
 const WB = Duel.WB;
 const LB = Duel.LB;
 
-test('scoreAffectsOnlyWinner', function (t) {
+test('scoreAffectsOnlyWinner', function T(t) {
   var n = 16
     , d = new Duel(n, { last: LB })
     , gs = d.matches;
@@ -44,11 +44,10 @@ test('scoreAffectsOnlyWinner', function (t) {
     verifyResDiff(res, newRes, m.p[1], 1, m.p[0]);
     res = newRes;
   });
-  t.end();
 });
 
 
-test('detailedSingleResults', function (t) {
+test('detailedSingleResults', function T(t) {
   [false, true].forEach(function (shrt) {
     // first runthrough with bronze final, second without
     var duel = new Duel(16, { short: shrt, last: WB })
@@ -140,10 +139,9 @@ test('detailedSingleResults', function (t) {
       }
     });
   });
-  t.end();
 });
 
-test('detailedDoubleResults', function (t) {
+test('detailedDoubleResults', function T(t) {
   [false, true].forEach(function (shrt) {
     // first runthrough with gf2, second without
     var duel = new Duel(8, { short: shrt, last: LB })
@@ -365,5 +363,4 @@ test('detailedDoubleResults', function (t) {
     });
     t.ok(duel.isDone(), 'duel tournament is now done');
   });
-  t.end();
 });

@@ -1,7 +1,7 @@
 var Duel = require('../')
-  , test = require('tape');
+  , test = require('bandage');
 
-test('lbgfg1rescoring', function (t) {
+test('lbgfg1rescoring', function T(t) {
   var d = new Duel(4, { last: Duel.LB });
   var ms = d.matches;
 
@@ -50,5 +50,4 @@ test('lbgfg1rescoring', function (t) {
   // but verify that it would have worked if it was in short mode!
   d.isLong = false; // bad user behaviour!
   t.equal(d.unscorable(gfg1.id, [1, 0]), null, 'gfg1 re-score would have worked');
-  t.end();
 });

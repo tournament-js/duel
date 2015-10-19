@@ -1,8 +1,8 @@
 var $ = require('interlude')
   , Duel = require('../')
-  , test = require('tape');
+  , test = require('bandage');
 
-test('Duel.from', function (t) {
+test('Duel.from', function T(t) {
   var d1 = new Duel(16);
   d1.matches.forEach(function (m) {
     d1.score(m.id, m.p[1] < m.p[0] ? [1,0] : [0,1]); // score inversely to seed
@@ -29,5 +29,4 @@ test('Duel.from', function (t) {
 
   var d3 = Duel.from(d2, 4);
   t.deepEqual(d3.players(), [9,10,11,12], 'top 3 progressed to d3');
-  t.end();
 });
