@@ -136,6 +136,26 @@ var right = function (id) {
   return [gId(b, r + 1, ghalf), pos];
 };
 
+// helper to mix up the lists in certain rounds to reduce chances of replayed matches
+var mixLbGames = function (p, round, game) {
+  // we know round <= p
+  var numGames = Math.pow(2, p - round);
+  var midPoint = Math.floor(Math.pow(2, p - round - 1)); // midPoint 0 in finals
+
+  // reverse the match list map
+  var reversed = $.odd(Math.floor(round/2));
+  // split the match list map in two change order and rejoin the lists
+  var partitioned = $.even(Math.floor((round + 1)/2));
+
+  if (partitioned) {
+    if (reversed) {
+      return (game > midPoint) ? numGames - game + midPoint + 1 : midPoint - game + 1;
+    }
+    return (game > midPoint) ?  game - midPoint : game + midPoint;
+  }
+  return reversed ? numGames - game + 1 : game;
+};
+
 // find the match and position a loser should move "down" to in the current bracket
 var down = function (id) {
   var b = id.s
