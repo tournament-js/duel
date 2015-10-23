@@ -1,3 +1,7 @@
+3.1.0 / 2015-10-23
+==================
+  * Implement optional `downMix` progression mode for double elimination tournaments #11 and #10
+
 3.0.1 / 2015-01-03
 ==================
   * Fix bug in `_safe` implementation which made `unscorable` too strict when not having full access (#6 via @a5sk4s)
