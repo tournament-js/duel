@@ -1,3 +1,7 @@
+3.1.1 / 2015-10-23
+==================
+  * Disabled `downMix` option in single elimination
+
 3.1.0 / 2015-10-23
 ==================
   * Implement optional `downMix` progression mode for double elimination tournaments #11 and #10

@@ -278,7 +278,7 @@ Duel.configure({
     o.isLong = !o.short;
     o.last = o.last || WB;
     o.limit = o.limit | 0;
-    o.downMix = !!o.downMix;
+    o.downMix = o.downMix && o.last > WB;
     return o;
   },
 
