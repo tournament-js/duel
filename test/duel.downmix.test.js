@@ -18,9 +18,9 @@ const WO = Duel.WO;
  *
  * Since the mixups are deterministic this MUST still never break.
  */
-test('downMix', function T(t) {
+test('downMixComparison', function T(t) {
   // two duels that should behave identicaly except progression
-  var dm = new Duel(16, { last: LB, downMix: true, short: true });
+  var dm = new Duel(16, { last: LB, short: true, downMix: true });
   var d = new Duel(16, { last: LB, short: true });
 
   d.matches.forEach(function (g) {
@@ -54,24 +54,29 @@ test('downMix', function T(t) {
  * General check that finals are handled correctly when using downMix
  *
  * Will verify the number of finals, and that all variations are sensible.
+ * Will verify pretty much all sensible tournament numbers at perfect powers,
+ * including +-1 to get the extreme edge cases right.
+ * This ensures downMix doubles are always completable.
  */
-test('downMixFinals', function T(t) {
-  [false, true].forEach(function (underDogWins) {
-    [false, true].forEach(function (short) {
-      var d = new Duel(16, { last: LB, downMix: true, short: short });
-      d.matches.forEach(function (g) {
-        if (d.unscorable(g.id, [1,0])) { // avoid log in gf2
-          return; // should be grand final game only (otherwise dm.isDone fails later)
+test('downMixCompletion', function T(t) {
+  [4,5,7,8,9,15,16,17,31,32,33,63,64,65,127,128,200,255,256].forEach(function (numPlayers) {
+    [false, true].forEach(function (underDogWins) {
+      [false, true].forEach(function (short) {
+        var duel = new Duel(numPlayers, { last: LB, downMix: true, short: short });
+        duel.matches.forEach(function (g) {
+          if (!duel.unscorable(g.id, [1,0])) { // avoid log when !short, !underDogWins in gf2
+            duel.score(g.id, underDogWins ? [0,2] : [2,0]);
+          }
+        });
+        var lastR = 2*duel.p - 1;
+        var finals = duel.findMatchesRanged({s: 2, r: lastR});
+        t.equal(finals.length, 1 + Number(!short), 'number of finals when short is ' + short);
+        if (!short) {
+          var gf2 = finals[1];
+          t.equal(duel.isPlayable(gf2), underDogWins, 'gf2 only playable if underDogWins gf1');
         }
-        d.score(g.id, underDogWins ? [0,2] : [2,0]);
+        t.ok(duel.isDone(), 'completed ' + numPlayers + 'p ' + (short ? 'short' : 'long') + ' duel');
       });
-      var finals = d.findMatchesRanged({s: 2, r: 7}, {s: 2, r: 8});
-      t.equal(finals.length, 1+Number(!short), 'number of finals when short is '+ short);
-      if (!short) {
-        var gf2 = finals[1];
-        t.equal(d.isPlayable(gf2), underDogWins, 'gf2 only playable if underDogWins');
-      }
-      t.ok(d.isDone(), 'd is done');
     });
   });
 });
