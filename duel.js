@@ -125,7 +125,8 @@ var right = function (id) {
     pos = (r + 1) % 2; // LB final winner -> bottom & GF(1) underdog winner -> top
   }
   else if (r === 1) {
-    pos = g % 2; // LBR1 winners move inversely to normal progression
+    // unless downMix, LBR1 winners move inversely to normal progression
+    pos = this.downMix ? 1 : g % 2;
   }
   else {
     // winner from LB always bottom in odd rounds, otherwise normal progression
@@ -136,7 +137,7 @@ var right = function (id) {
   return [gId(b, r + 1, ghalf), pos];
 };
 
-// helper to mix up the lists in certain rounds to reduce chances of replayed matches
+// helper to mix down progression to reduce chances of replayed matches
 var mixLbGames = function (p, round, game) {
   // we know round <= p
   var numGames = Math.pow(2, p - round);
@@ -177,12 +178,19 @@ var down = function (id) {
     return null;
   }
 
-  // LB drops: on top for (r>2) and (r<=2 if odd g) to match bracket movement
-  var pos = (r > 2 || $.odd(g)) ? 0 : 1;
-  // LBR1 only fed by WBR1 (halves normally), else feed -> r=2x later (w/matching g)
-  var dId = (r === 1) ? gId(LB, 1, Math.floor((g+1)/2)) : gId(LB, (r-1)*2, g);
+  // WBR1 always feeds into LBR1 as if it were WBR2
+  if (r === 1) {
+    return [gId(LB, 1, Math.floor((g+1)/2)), g % 2];
+  }
 
-  return [dId, pos];
+  if (this.downMix) {
+    // always drop on top when downmixing
+    return [gId(LB, (r-1)*2, mixLbGames(p, r, g)), 0];
+  }
+
+  // normal  LB drops: on top for (r>2) and (r<=2 if odd g) to match bracket movement
+  var pos = (r > 2 || $.odd(g)) ? 0 : 1;
+  return [gId(LB, (r-1)*2, g), pos];
 };
 
 // given a direction (one of the above two), move an 'advancer' to that location
@@ -249,6 +257,7 @@ var Duel = Base.sub('Duel', function (opts, initParent) {
   this.isLong = opts.isLong; // isLong for WB => hasBF, isLong for LB => hasGf2
   this.last = opts.last;
   this.limit = opts.limit;
+  this.downMix = opts.downMix;
   this.p = Math.ceil(Math.log(this.numPlayers) / Math.log(2));
   initParent(elimination(this.numPlayers, this.p, this.last, this.isLong));
 
@@ -269,6 +278,7 @@ Duel.configure({
     o.isLong = !o.short;
     o.last = o.last || WB;
     o.limit = o.limit | 0;
+    o.downMix = !!o.downMix;
     return o;
   },
 
