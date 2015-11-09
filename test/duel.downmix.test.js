@@ -80,3 +80,110 @@ test('downMixCompletion', function T(t) {
     });
   });
 });
+
+test('downMixPow6', function T(t) {
+  var d = new Duel(Math.pow(2, 6), { last: LB, downMix: true });
+
+  // Verify WBR2 -> LBR2 reverser order completely
+  for (var i = 1; i <= 16; i += 1) {
+    var dn = d.down({s: WB, r: 2, m: i});
+    t.equal(dn[1], 0, 'always drop on top when downmixing');
+    t.deepEqual(dn[0], {s: LB, r:2, m: 16-i+1}, 'always drop on top when downmixing');
+  }
+
+  // Verify WBR3 -> LBR4 reverses in chunks of two, but same style of split as in LBR2
+  var verifyMap3 = function (wbm, lbm) {
+    var dn = d.down({s: WB, r: 3, m: wbm})[0]
+    t.deepEqual(dn, {s: LB, r: 4, m: lbm}, 'match map for WBR3');
+  };
+  verifyMap3(1, 4)
+  verifyMap3(2, 3)
+  verifyMap3(3, 2)
+  verifyMap3(4, 1)
+  verifyMap3(5, 8)
+  verifyMap3(6, 7)
+  verifyMap3(7, 6)
+  verifyMap3(8, 5)
+
+  // Verify WBR4 -> LBR6 - reversing in chunks of two
+  var verifyMap4 = function (wbm, lbm) {
+    var dn = d.down({s: WB, r: 4, m: wbm})[0]
+    t.deepEqual(dn, {s: LB, r: 6, m: lbm}, 'match map for WBR4');
+  };
+  verifyMap4(1, 3);
+  verifyMap4(2, 4);
+  verifyMap4(3, 1);
+  verifyMap4(4, 2);
+});
+
+test('downMixPow8', function T(t) {
+  var d = new Duel(Math.pow(2, 8), { last: LB, downMix: true });
+
+  // Verify WBR2 -> LBR2 reverser order completely
+  for (var i = 1; i <= 64; i += 1) {
+    var dn = d.down({s: WB, r: 2, m: i});
+    t.equal(dn[1], 0, 'always drop on top when downmixing');
+    t.deepEqual(dn[0], {s: LB, r:2, m: 64-i+1}, 'always drop on top when downmixing');
+  }
+
+  // Verify WBR3 -> LBR4 reverses in chunks of two, but same style of split as in LBR2
+  var verifyMap3 = function (wbm, lbm) {
+    var dn = d.down({s: WB, r: 3, m: wbm})[0]
+    t.deepEqual(dn, {s: LB, r: 4, m: lbm}, 'match map for WBR3');
+  };
+  verifyMap3(1, 16)
+  verifyMap3(2, 15)
+  verifyMap3(15, 2)
+  verifyMap3(16, 1)
+  verifyMap3(17, 32)
+  verifyMap3(18, 31)
+  verifyMap3(31, 18)
+  verifyMap3(32, 17)
+
+  // Verify WBR4 -> LBR6 - reversing in chunks of two
+  var verifyMap4 = function (wbm, lbm) {
+    var dn = d.down({s: WB, r: 4, m: wbm})[0]
+    t.deepEqual(dn, {s: LB, r: 6, m: lbm}, 'match map for WBR4');
+  };
+  verifyMap4(1, 9);
+  verifyMap4(2, 10);
+  verifyMap4(7, 15);
+  verifyMap4(8, 16);
+  verifyMap4(9, 1);
+  verifyMap4(10, 2);
+  verifyMap4(15, 7);
+  verifyMap4(16, 8);
+
+  // Verify WBR5 -> LBR8 - is identity
+  var verifyMap5 = function (wbm, lbm) {
+    var dn = d.down({s: WB, r: 5, m: wbm})[0]
+    t.deepEqual(dn, {s: LB, r: 8, m: lbm}, 'match map for WBR5');
+  };
+  verifyMap5(1, 1);
+  verifyMap5(2, 2);
+  verifyMap5(3, 3);
+  verifyMap5(4, 4);
+  verifyMap5(5, 5);
+  verifyMap5(6, 6);
+  verifyMap5(7, 7);
+  verifyMap5(8, 8);
+
+  // Verify WBR6 -> LBR10 reverses plainly
+  var verifyMap6 = function (wbm, lbm) {
+    var dn = d.down({s: WB, r: 6, m: wbm})[0]
+    t.deepEqual(dn, {s: LB, r: 10, m: lbm}, 'match map for WBR5');
+  };
+  verifyMap6(1, 4);
+  verifyMap6(2, 3);
+  verifyMap6(3, 2);
+  verifyMap6(4, 1);
+
+
+  // Verify WBR7 -> LBR12
+  var verifyMap7 = function (wbm, lbm) {
+    var dn = d.down({s: WB, r: 7, m: wbm})[0]
+    t.deepEqual(dn, {s: LB, r: 12, m: lbm}, 'match map for WBR5');
+  };
+  verifyMap7(1, 1);
+  verifyMap7(2, 2);
+});
