@@ -15,7 +15,7 @@
   "main": "duel.js",
   "scripts": {
     "test": "bndg test/*.js",
-    "precoverage": "istanbul cover bndg 'test/*.test.js'",
+    "precoverage": "istanbul cover bndg test/*.test.js",
     "coverage": "cat coverage/lcov.info && rm -rf coverage"
   },
   "dependencies": {
@@ -23,7 +23,7 @@
     "tournament": "^3.0.0"
   },
   "devDependencies": {
-    "bandage": "^0.2.3",
+    "bandage": "^0.3.1",
     "istanbul": "^0.4.0"
   },
   "bugs": {

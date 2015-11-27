@@ -3,7 +3,7 @@ var $ = require('interlude')
   , test = require('bandage');
 
 
-test('seedingAssumptiom', function T(t) {
+test('seedingAssumptiom', function *T(t) {
   var d = new Duel(512, { last: Duel.WB, short: true }) // bf irrelevant
     , gs = d.matches;
 

@@ -1,7 +1,7 @@
 var Duel = require('../')
   , test = require('bandage');
 
-test('lbgfg1rescoring', function T(t) {
+test('lbgfg1rescoring', function *T(t) {
   var d = new Duel(4, { last: Duel.LB });
   var ms = d.matches;
 

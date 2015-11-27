@@ -5,7 +5,7 @@ var $ = require('interlude')
 const WB = Duel.WB;
 const LB = Duel.LB;
 
-test('scoreAffectsOnlyWinner', function T(t) {
+test('scoreAffectsOnlyWinner', function *T(t) {
   var n = 16
     , d = new Duel(n, { last: LB })
     , gs = d.matches;
@@ -47,7 +47,7 @@ test('scoreAffectsOnlyWinner', function T(t) {
 });
 
 
-test('detailedSingleResults', function T(t) {
+test('detailedSingleResults', function *T(t) {
   [false, true].forEach(function (shrt) {
     // first runthrough with bronze final, second without
     var duel = new Duel(16, { short: shrt, last: WB })
@@ -141,7 +141,7 @@ test('detailedSingleResults', function T(t) {
   });
 });
 
-test('detailedDoubleResults', function T(t) {
+test('detailedDoubleResults', function *T(t) {
   [false, true].forEach(function (shrt) {
     // first runthrough with gf2, second without
     var duel = new Duel(8, { short: shrt, last: LB })

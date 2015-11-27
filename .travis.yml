@@ -3,6 +3,7 @@ sudo: false
 
 node_js:
   - 4
+  - node
 
 notifications:
   email: false

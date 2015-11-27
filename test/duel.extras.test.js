@@ -1,7 +1,7 @@
 var Duel = require('../');
 var test = require('bandage');
 
-test('Duel.invalid', function T(t) {
+test('Duel.invalid', function *T(t) {
   var inv = Duel.invalid;
   t.equal(inv(3), 'numPlayers must be >= 4 and <= 1024', 'lb size limit');
   t.equal(inv(1025), 'numPlayers must be >= 4 and <= 1024', 'ub size limit');
@@ -9,7 +9,7 @@ test('Duel.invalid', function T(t) {
   t.equal(inv(8, { limit: 4}), 'limits not yet supported');
 });
 
-test('Duel.attachNames', function T(t) {
+test('Duel.attachNames', function *T(t) {
   var fn = function (Trn, last, p, id) {
     return id + ' for p=' + p + ' in ' + (last === Trn.LB ? 'DE' : 'SE') + ' mode';
   };
@@ -21,13 +21,13 @@ test('Duel.attachNames', function T(t) {
   );
 });
 
-test('noDraws', function T(t) {
+test('noDraws', function *T(t) {
   var d = new Duel(4);
   t.equal(d.unscorable(d.matches[0].id, [1,1]), 'cannot draw a duel', 'cannot draw');
   t.ok(!d.score(d.matches[0].id, [1,1]), 'not allowed');
 });
 
-test('safePropagation', function T(t) {
+test('safePropagation', function *T(t) {
   var d = new Duel(5, { last: 2 });
 
   // cannot score the WO matches in WBR1

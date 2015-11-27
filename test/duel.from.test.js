@@ -2,7 +2,7 @@ var $ = require('interlude')
   , Duel = require('../')
   , test = require('bandage');
 
-test('Duel.from', function T(t) {
+test('Duel.from', function *T(t) {
   var d1 = new Duel(16);
   d1.matches.forEach(function (m) {
     d1.score(m.id, m.p[1] < m.p[0] ? [1,0] : [0,1]); // score inversely to seed

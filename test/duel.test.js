@@ -6,7 +6,7 @@ const WB = Duel.WB;
 const LB = Duel.LB;
 const WO = Duel.WO;
 
-test('losersUnderdog', function T(t) {
+test('losersUnderdog', function *T(t) {
   // long LB underdog lost
   var duel = new Duel(16, { last: LB, short: false });
   duel.matches.slice(0, -2).map(function (m, i) {
@@ -49,7 +49,7 @@ test('losersUnderdog', function T(t) {
   t.ok(duel.isDone(), 'duel tournament should be done now');
 });
 
-test('singleGeneral', function T(t) {
+test('singleGeneral', function *T(t) {
   var duel = new Duel(32)
     , gs = duel.matches
     , p = duel.p;
@@ -76,7 +76,7 @@ test('singleGeneral', function T(t) {
   t.equal(res.length, 32, 'all players included in results');
 });
 
-test('doubleGeneral', function T(t) {
+test('doubleGeneral', function *T(t) {
   var duel = new Duel(32, { last: LB })
     , gs = duel.matches
     , p = duel.p;
@@ -105,7 +105,7 @@ test('doubleGeneral', function T(t) {
   t.equal(res.length, 32, 'all players included in results');
 });
 
-test('simgleSingleRes', function T(t) {
+test('simgleSingleRes', function *T(t) {
   // try scoring everything in order
   var duel = new Duel(5)
     , gs = duel.matches;
@@ -163,7 +163,7 @@ test('simgleSingleRes', function T(t) {
   t.deepEqual(sorted, $.range(5), 'results sorted after position');
 });
 
-test('bigDouble', function T(t) {
+test('bigDouble', function *T(t) {
   // try scoring everything in order
   var duel = new Duel(128, { last: LB })
     , gs = duel.matches
@@ -193,7 +193,7 @@ test('bigDouble', function T(t) {
   t.deepEqual(sorted, $.range(4), 'results sorted after position');
 });
 
-test('detailedDouble', function T(t) {
+test('detailedDouble', function *T(t) {
   // try scoring everything in order
   var duel = new Duel(5, { last: LB })
     , gs = duel.matches;
@@ -251,7 +251,7 @@ test('detailedDouble', function T(t) {
   t.deepEqual(sorted, [2, 3, 4, 5, 1], 'results sorted after position');
 });
 
-test('doubleHelpers', function T(t) {
+test('doubleHelpers', function *T(t) {
   var d = new Duel(8, { last: LB }) // NO WO markers in this (easy case)
     , ms = d.matches;
 
