@@ -7,6 +7,9 @@ const WB = 1
 
 // Id class - so each Id has an automatic string representation
 function Id(bracket, round, match) {
+  if (!(this instanceof Id)) {
+    return new Id(bracket, round, match);
+  }
   this.s = bracket;
   this.r = round;
   this.m = match;
@@ -309,6 +312,8 @@ Duel.attachNames = function (fn) {
     return fn(consts, this.last, this.p, partialId);
   };
 };
+
+Duel.Id = Id;
 
 // ------------------------------------------------------------------
 // Expected methods
