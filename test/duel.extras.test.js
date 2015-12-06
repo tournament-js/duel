@@ -1,5 +1,6 @@
 var Duel = require('../');
 var test = require('bandage');
+var smell = require('smell');
 
 test('Duel.invalid', function *T(t) {
   var inv = Duel.invalid;
@@ -22,9 +23,9 @@ test('Duel.attachNames', function *T(t) {
 });
 
 test('noDraws', function *T(t) {
-  var d = new Duel(4);
+  var d = new Duel(4, { log: smell() });
   t.equal(d.unscorable(d.matches[0].id, [1,1]), 'cannot draw a duel', 'cannot draw');
-  t.ok(!d.score(d.matches[0].id, [1,1]), 'not allowed');
+  t.false(d.score(d.matches[0].id, [1,1]), 'not allowed');
 });
 
 test('safePropagation', function *T(t) {

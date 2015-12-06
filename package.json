@@ -20,11 +20,12 @@
   },
   "dependencies": {
     "interlude": "^1.1.0",
-    "tournament": "^3.0.0"
+    "tournament": "^3.1.0"
   },
   "devDependencies": {
     "bandage": "^0.3.1",
-    "istanbul": "^0.4.0"
+    "istanbul": "^0.4.0",
+    "smell": "^2.0.6"
   },
   "bugs": {
     "url": "http://github.com/clux/duel/issues"

@@ -1,5 +1,6 @@
 var $ = require('interlude')
   , Duel = require('../')
+  , nullLog = require('smell')()
   , test = require('bandage');
 
 const WB = Duel.WB;
@@ -8,7 +9,7 @@ const WO = Duel.WO;
 
 test('losersUnderdog', function *T(t) {
   // long LB underdog lost
-  var duel = new Duel(16, { last: LB, short: false });
+  var duel = new Duel(16, { last: LB, short: false, log: nullLog });
   duel.matches.slice(0, -2).map(function (m, i) {
     t.equal(duel.unscorable(m.id, [1,0]), null, 'can score long m' + i);
     t.ok(duel.score(m.id, m.p[0] < m.p[1] ? [2,1] : [1,2]), 'can score long m' + i);
@@ -17,7 +18,7 @@ test('losersUnderdog', function *T(t) {
   t.deepEqual($.last(duel.matches).p, [0, 0], 'no players in gf2 when quick gf');
   t.ok(duel.isDone(), 'duel tournament should be done now');
   t.ok(duel.unscorable($.last(duel.matches).id, [1,0], true), 'cannot score GF2');
-  t.ok(!duel.score($.last(duel.matches).id, [2, 1]), 'could NOT score GF2');
+  t.false(duel.score($.last(duel.matches).id, [2, 1]), 'could NOT score GF2');
 
   // long LB underdog won
   duel = new Duel(16, { last: LB, short: false });
@@ -107,7 +108,7 @@ test('doubleGeneral', function *T(t) {
 
 test('simgleSingleRes', function *T(t) {
   // try scoring everything in order
-  var duel = new Duel(5)
+  var duel = new Duel(5, { log: nullLog })
     , gs = duel.matches;
 
   var lastM = gs[gs.length-1];
@@ -165,7 +166,7 @@ test('simgleSingleRes', function *T(t) {
 
 test('bigDouble', function *T(t) {
   // try scoring everything in order
-  var duel = new Duel(128, { last: LB })
+  var duel = new Duel(128, { last: LB, log: nullLog })
     , gs = duel.matches
     , p = duel.p;
 
@@ -195,7 +196,7 @@ test('bigDouble', function *T(t) {
 
 test('detailedDouble', function *T(t) {
   // try scoring everything in order
-  var duel = new Duel(5, { last: LB })
+  var duel = new Duel(5, { last: LB, log: nullLog })
     , gs = duel.matches;
 
   var lastM = gs[gs.length-1];
