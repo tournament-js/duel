@@ -1,3 +1,7 @@
+3.2.0 / 2015-12-06
+==================
+  * Bump tournament@3.1.0 for configurable logs
+
 3.1.1 / 2015-10-23
 ==================
   * Disabled `downMix` option in single elimination
