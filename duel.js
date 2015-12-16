@@ -313,8 +313,6 @@ Duel.attachNames = function (fn) {
   };
 };
 
-Duel.Id = Id;
-
 // ------------------------------------------------------------------
 // Expected methods
 // ------------------------------------------------------------------
@@ -423,4 +421,5 @@ Duel.prototype._stats = function (res, g) {
 Duel.prototype.down = down;
 Duel.prototype.right = right;
 
+Duel.Id = Id;
 module.exports = Duel;
