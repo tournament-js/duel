@@ -94,17 +94,17 @@ test('downMixPow6', function *T(t) {
 
   // Verify WBR3 -> LBR4 reverses in chunks of two, but same style of split as in LBR2
   var verifyMap3 = function (wbm, lbm) {
-    var dn = d.down({s: WB, r: 3, m: wbm})[0]
+    var dn = d.down({s: WB, r: 3, m: wbm})[0];
     t.deepEqual(dn, Id(LB, 4, lbm), 'match map for WBR3');
   };
-  verifyMap3(1, 4)
-  verifyMap3(2, 3)
-  verifyMap3(3, 2)
-  verifyMap3(4, 1)
-  verifyMap3(5, 8)
-  verifyMap3(6, 7)
-  verifyMap3(7, 6)
-  verifyMap3(8, 5)
+  verifyMap3(1, 4);
+  verifyMap3(2, 3);
+  verifyMap3(3, 2);
+  verifyMap3(4, 1);
+  verifyMap3(5, 8);
+  verifyMap3(6, 7);
+  verifyMap3(7, 6);
+  verifyMap3(8, 5);
 
   // Verify WBR4 -> LBR6 - reversing in chunks of two
   var verifyMap4 = function (wbm, lbm) {
@@ -132,14 +132,14 @@ test('downMixPow8', function *T(t) {
     var dn = d.down({s: WB, r: 3, m: wbm})[0]
     t.deepEqual(dn, Id(LB, 4, lbm), 'match map for WBR3');
   };
-  verifyMap3(1, 16)
-  verifyMap3(2, 15)
-  verifyMap3(15, 2)
-  verifyMap3(16, 1)
-  verifyMap3(17, 32)
-  verifyMap3(18, 31)
-  verifyMap3(31, 18)
-  verifyMap3(32, 17)
+  verifyMap3(1, 16);
+  verifyMap3(2, 15);
+  verifyMap3(15, 2);
+  verifyMap3(16, 1);
+  verifyMap3(17, 32);
+  verifyMap3(18, 31);
+  verifyMap3(31, 18);
+  verifyMap3(32, 17);
 
   // Verify WBR4 -> LBR6 - reversing in chunks of two
   var verifyMap4 = function (wbm, lbm) {
