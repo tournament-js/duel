@@ -39,7 +39,7 @@ var gId = function (b, r, m) {
 };
 
 // helpers to initialize duel tournaments
-// http://clux.org/entries/view/2407
+// http://clux.x-pec.com/entries/view/2407
 var evenSeed = function (i, p) {
   var k = Math.floor(Math.log(i) / Math.log(2))
     , r = i - Math.pow(2, k);
